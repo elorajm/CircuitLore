@@ -1,27 +1,16 @@
-# CircuitLore
+# React + Vite
 
-**Discover the Story. Build the Circuit. Power the Future.**
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-CircuitLore is an interactive educational web application designed to help kids learn about electricity through history, storytelling, interactive lessons, challenges, and circuit building.
+Currently, two official plugins are available:
 
-The experience will begin with historical discoveries and the people behind them, then connect those discoveries to modern electrical concepts and technology.
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
 
-## Project Goals
+## React Compiler
 
-- Teach electricity in a visual and interactive way.
-- Connect the history of electricity to modern technology.
-- Include interactive lessons and activities.
-- Create a virtual circuit-building lab.
-- Allow students to create accounts and save their progress.
-- Include full CRUD functionality.
-- Provide quizzes and challenges.
-- Explore an AI learning assistant.
-- Provide a simple parent or teacher view of student progress.
+The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
 
-## Target Audience
+## Expanding the ESLint configuration
 
-CircuitLore is primarily designed for students around ages 10–14 who are beginning to learn about electricity and electrical circuits.
-
-## CSE 499 Senior Project
-
-CircuitLore is being developed as my CSE 499 Senior Project at Brigham Young University-Idaho.
+If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
