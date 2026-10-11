@@ -1,0 +1,62 @@
+/* Design tokens for the CircuitLore visual theme.
+   Realistic-cartoon educational adventure: deep navy, warm gold,
+   soft cream, and electric blue accents. */
+:root {
+  /* Core palette */
+  --navy-900: #0b1530;
+  --navy-800: #13224a;
+  --navy-700: #1c3063;
+  --gold-400: #f0c15f;
+  --gold-500: #e3a73e;
+  --gold-700: #a1721f;
+  --cream-100: #fdf8ee;
+  --cream-200: #f6ead2;
+  --electric-blue-400: #4cd2ff;
+  --electric-blue-600: #0ea5e9;
+
+  /* Semantic text colors */
+  --color-text: #182238;
+  --color-text-muted: #525c73;
+  --color-text-inverse: #f8f5ec;
+
+  /* Semantic surface colors */
+  --color-bg: var(--cream-100);
+  --color-surface: #ffffff;
+  --color-surface-muted: var(--cream-200);
+  --color-header: var(--navy-900);
+  --color-header-surface: var(--navy-800);
+
+  /* Accents */
+  --color-accent-gold: var(--gold-500);
+  --color-accent-gold-hover: var(--gold-400);
+  --color-accent-blue: var(--electric-blue-600);
+  --color-focus-ring: var(--electric-blue-400);
+
+  /* Feedback colors (form errors/success messages) */
+  --color-error: #b3261e;
+  --color-error-bg: #fbeceb;
+  --color-success: #2e7d32;
+  --color-success-bg: #eaf5ea;
+
+  /* Typography */
+  --font-body: 'Segoe UI', 'Trebuchet MS', Verdana, system-ui, sans-serif;
+  --font-display: Georgia, 'Times New Roman', serif;
+
+  /* Spacing */
+  --space-xs: 0.5rem;
+  --space-sm: 0.75rem;
+  --space-md: 1.25rem;
+  --space-lg: 2rem;
+  --space-xl: 3.5rem;
+
+  /* Shape & elevation */
+  --radius-sm: 0.5rem;
+  --radius-md: 0.9rem;
+  --radius-lg: 1.25rem;
+  --shadow-card: 0 10px 25px -12px rgba(11, 21, 48, 0.35);
+  --shadow-card-hover: 0 16px 32px -14px rgba(11, 21, 48, 0.45);
+
+  /* Motion */
+  --transition-fast: 150ms ease;
+  --transition-medium: 250ms ease;
+}

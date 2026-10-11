@@ -1,24 +1,47 @@
-import './App.css'
+import { Routes, Route } from 'react-router-dom'
+import { AuthProvider } from './context/AuthContext.jsx'
+import ProtectedRoute from './components/ProtectedRoute.jsx'
+import MainLayout from './layouts/MainLayout.jsx'
+import Home from './pages/Home.jsx'
+import Login from './pages/Login.jsx'
+import SignUp from './pages/SignUp.jsx'
+import StudentDashboard from './pages/StudentDashboard.jsx'
+import LearningJourney from './pages/LearningJourney.jsx'
+import HistoricalExperience from './pages/HistoricalExperience.jsx'
+import ElectricityLessons from './pages/ElectricityLessons.jsx'
+import InteractiveActivities from './pages/InteractiveActivities.jsx'
+import CircuitLab from './pages/CircuitLab.jsx'
+import AdultDashboard from './pages/AdultDashboard.jsx'
+import AdminContentManagement from './pages/AdminContentManagement.jsx'
+import NotFound from './pages/NotFound.jsx'
 
 function App() {
   return (
-    <main className="app">
-      <section className="welcome">
-        <p className="eyebrow">CSE 499 Senior Project</p>
-
-        <h1>CircuitLore</h1>
-
-        <h2>Discover the Story. Build the Circuit. Power the Future.</h2>
-
-        <p>
-          Travel through the history of electricity, meet the people behind
-          important discoveries, and learn how their ideas power the world
-          around us today.
-        </p>
-
-        <button type="button">Begin the Journey</button>
-      </section>
-    </main>
+    <AuthProvider>
+      <Routes>
+        <Route element={<MainLayout />}>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<SignUp />} />
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <StudentDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="/journey" element={<LearningJourney />} />
+          <Route path="/history" element={<HistoricalExperience />} />
+          <Route path="/lessons" element={<ElectricityLessons />} />
+          <Route path="/activities" element={<InteractiveActivities />} />
+          <Route path="/circuit-lab" element={<CircuitLab />} />
+          <Route path="/adult-dashboard" element={<AdultDashboard />} />
+          <Route path="/admin" element={<AdminContentManagement />} />
+          <Route path="*" element={<NotFound />} />
+        </Route>
+      </Routes>
+    </AuthProvider>
   )
 }
 

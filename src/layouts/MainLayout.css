@@ -1,0 +1,23 @@
+.site {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* A thin "circuit trace" accent line hints at electricity without imagery. */
+.site::before {
+  content: '';
+  display: block;
+  height: 4px;
+  background: linear-gradient(
+    90deg,
+    var(--navy-900) 0%,
+    var(--electric-blue-600) 50%,
+    var(--gold-500) 100%
+  );
+}
+
+.site-main {
+  flex: 1;
+  width: 100%;
+}

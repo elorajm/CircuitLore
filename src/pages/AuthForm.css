@@ -1,0 +1,83 @@
+.auth-page {
+  width: min(420px, 100%);
+  margin: 0 auto;
+  padding: var(--space-xl) 1.5rem;
+  text-align: center;
+}
+
+.auth-page h1 {
+  margin: 0 0 0.75rem;
+}
+
+.auth-note {
+  line-height: 1.6;
+  margin-bottom: 1.75rem;
+  color: var(--color-text-muted);
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  text-align: left;
+  background-color: var(--color-surface);
+  border: 1px solid var(--cream-200);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: 1.5rem;
+}
+
+.auth-form label {
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+}
+
+.auth-form input,
+.auth-form select {
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--cream-200);
+  border-radius: var(--radius-sm);
+  background-color: var(--cream-100);
+}
+
+.auth-form button {
+  margin-top: 1.5rem;
+}
+
+.auth-form button:disabled,
+.auth-form input:disabled,
+.auth-form select:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.auth-helper-text {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  margin: 0.15rem 0 0;
+}
+
+.auth-error {
+  background-color: var(--color-error-bg);
+  color: var(--color-error);
+  border-radius: var(--radius-sm);
+  padding: 0.6rem 0.75rem;
+  font-size: 0.9rem;
+  margin: 0.5rem 0 0;
+}
+
+.auth-success {
+  background-color: var(--color-success-bg);
+  color: var(--color-success);
+  border-radius: var(--radius-sm);
+  padding: 0.6rem 0.75rem;
+  font-size: 0.9rem;
+  margin: 0.5rem 0 0;
+}
+
+.auth-switch {
+  margin-top: 1.5rem;
+  font-size: 0.9rem;
+}
+

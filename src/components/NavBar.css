@@ -1,0 +1,136 @@
+.navbar {
+  background-color: var(--color-header);
+  color: var(--color-text-inverse);
+  padding: 0.75rem 1.5rem;
+}
+
+.navbar-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.navbar-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--color-text-inverse);
+  text-decoration: none;
+  letter-spacing: 0.02rem;
+}
+
+.navbar-brand-icon {
+  color: var(--gold-400);
+}
+
+.navbar-toggle {
+  display: none;
+  flex-direction: column;
+  gap: 4px;
+  background: none;
+  border: none;
+  padding: 0.4rem;
+  cursor: pointer;
+}
+
+.navbar-toggle-bar {
+  width: 22px;
+  height: 2px;
+  background-color: var(--color-text-inverse);
+  border-radius: 2px;
+}
+
+.navbar-links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 1rem;
+  margin-top: 0.75rem;
+}
+
+.navbar-link {
+  color: #c7cde0;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.95rem;
+  padding: 0.4rem 0.6rem;
+  border-radius: var(--radius-sm);
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+
+.navbar-link:hover {
+  color: var(--color-text-inverse);
+  background-color: rgba(248, 245, 236, 0.1);
+}
+
+.navbar-link.is-active {
+  color: var(--navy-900);
+  background-color: var(--gold-400);
+}
+
+.navbar-auth {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: auto;
+}
+
+.navbar-link-cta {
+  background-color: var(--electric-blue-600);
+  color: var(--navy-900);
+}
+
+.navbar-link-cta:hover {
+  background-color: var(--electric-blue-400);
+  color: var(--navy-900);
+}
+
+.navbar-user {
+  color: #c7cde0;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.navbar-logout {
+  background: none;
+  border: 1px solid #c7cde0;
+  color: var(--color-text-inverse);
+  font-weight: 600;
+  font-size: 0.95rem;
+  padding: 0.4rem 0.6rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+
+.navbar-logout:hover {
+  background-color: rgba(248, 245, 236, 0.1);
+}
+
+@media (max-width: 720px) {
+  .navbar-toggle {
+    display: flex;
+  }
+
+  .navbar-links {
+    flex-direction: column;
+    align-items: flex-start;
+    max-height: 0;
+    overflow: hidden;
+    margin-top: 0;
+    transition: max-height var(--transition-medium);
+  }
+
+  .navbar-links.is-open {
+    max-height: 480px;
+    margin-top: 0.75rem;
+  }
+
+  .navbar-auth {
+    margin-left: 0;
+    margin-top: 0.5rem;
+  }
+}
