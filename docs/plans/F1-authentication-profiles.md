@@ -61,14 +61,27 @@ Possible fields:
 - Display name
 - Email
 - Password
-- Account type
+- Account type (Student / Parent or Teacher)
 
 The user selects:
 
 - Student
 - Parent/Teacher
 
-Because CircuitLore is designed for younger users, unnecessary personal information should not be collected.
+**Important: All accounts are created as `student` role in the database, regardless of selection.** A user selecting "Parent/Teacher" receives a `student` profile initially. The adult role must be granted through a separate, protected approval workflow (see below).
+
+---
+
+## Adult Role Approval Workflow
+
+Because adult accounts can access sensitive student information, adult role promotion is not automatic and requires verification:
+
+1. **User requests adult role** after signup through an authenticated endpoint (not exposed to public API).
+2. **Institution staff reviews** the request outside the application (manual review process).
+3. **Upon approval**, staff uses a protected server-side workflow to promote the user's role from `student` to `adult`.
+4. **User re-authenticates** to see the updated role reflected in their session.
+
+This ensures adults are verified before gaining access to student information and prevents users from self-assigning privileged roles.
 
 ---
 
@@ -130,9 +143,17 @@ View the user's profile.
 
 Edit allowed profile information.
 
-### Delete
+## Account Deletion Workflow
 
-Delete the user's account/profile.
+Account deletion is a protected operation requiring user verification and server-side coordination:
+
+1. **User initiates deletion** through an authenticated account-settings endpoint.
+2. **Application verifies identity** (e.g., re-authentication, OTP, or recent session confirmation).
+3. **Server-side Supabase Admin API operation** uses a protected key (never exposed to the browser) to delete the auth account.
+4. **Database cascade** automatically removes the associated profile row via the foreign key's `ON DELETE CASCADE`.
+5. **Any associated data** (future progress, relationships, etc.) follows its own retention/cascade policy (to be defined in F6 and F9).
+
+Account deletion is not handled by the user-facing API. It requires internal, protected workflows and audit logging.
 
 Student learning progress will have additional CRUD functionality in F6.
 
@@ -142,13 +163,13 @@ Student learning progress will have additional CRUD functionality in F6.
 
 A possible `profiles` table could include:
 
-- `id`
-- `display_name`
-- `role`
-- `created_at`
-- `updated_at`
+- `id` — UUID, references auth user, cascade delete
+- `display_name` — text, 1–80 characters, defaults to `'Student'`
+- `role` — text, defaults to `'student'`, constrained to `'student'` or `'adult'`
+- `created_at` — timestamp, set when account is created
+- `updated_at` — timestamp, automatically maintained by database trigger
 
-The exact database structure will be finalized after researching Supabase.
+Authentication secrets (passwords, sessions, etc.) are stored only in Supabase Auth, never in the profile table. Role assignment happens through a server-side approval workflow, not through client-side profile updates. Adult role changes use database-level privilege escalation checks and execute only via trusted server roles (`postgres`, `service_role`).
 
 ---
 

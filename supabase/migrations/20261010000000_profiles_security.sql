@@ -40,6 +40,8 @@ BEGIN
 END;
 $function$;
 
+REVOKE ALL ON FUNCTION public.set_profile_updated_at() FROM PUBLIC, anon, authenticated;
+
 CREATE TRIGGER profiles_set_updated_at
   BEFORE UPDATE ON public.profiles
   FOR EACH ROW
@@ -62,6 +64,8 @@ BEGIN
   RETURN NEW;
 END;
 $function$;
+
+REVOKE ALL ON FUNCTION public.prevent_untrusted_profile_identity_changes() FROM PUBLIC, anon, authenticated;
 
 CREATE TRIGGER profiles_protect_identity_fields
   BEFORE UPDATE ON public.profiles

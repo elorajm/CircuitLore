@@ -33,13 +33,36 @@ The frontend must continue to use only the publishable/anon key. Never place a s
 
 ## Account roles and adult approval plan
 
-1. Every signup starts as `student` at the database layer, regardless of submitted metadata or form selection.
+1. **All signups start as `student` at the database layer**, regardless of submitted form selection or metadata. A parent or teacher selecting "adult" at signup receives a `student` profile initially.
 2. A request to be an adult is not proof of identity, parental status, or authorization to view a student.
-3. Before granting an adult role, define an approval process appropriate to the institution and privacy obligations. A designated trusted operator can review/approve the adult using a server-side administrative workflow; the role change must not be exposed through a normal profile update endpoint.
+3. **Adult role promotion is a separate, protected workflow:**
+   - A user requests adult role through an authenticated endpoint (not exposed to `anon` or direct API calls).
+   - A designated trusted operator (institution staff) reviews and approves the request outside the application.
+   - The operator uses a protected server-side workflow (e.g., Supabase Admin API via an internal script, not exposed to browsers) to promote the user's role from `student` to `adult`.
+   - This role change bypasses normal RLS because it uses `service_role`, which must never be exposed in client code.
 4. Keep adult account verification distinct from authorization to access a particular student's records. F9 will require a separate consented adult-student relationship and RLS policies scoped to that relationship.
 5. There is no administrator role in this proposal. Any future administrator role needs a separate trusted provisioning process and policies; users must never be able to self-assign it.
 
 This migration allows trusted database operators to change a role because the field guard permits `postgres` and `service_role`. Do not expose service-role operations in the client. A later server-side approval mechanism should be separately threat-modeled and audited.
+
+## Signup trigger design and failure handling
+
+The `create_profile_for_auth_user()` trigger automatically creates a profile row whenever a new auth user is registered. Its design:
+
+- **Idempotent**: Uses `ON CONFLICT (id) DO NOTHING` to prevent duplicate key errors if the profile already exists.
+- **Safe defaults**: Validates and sanitizes the display name from Auth metadata (lines 80–84); if missing or invalid, defaults to `'Student'`.
+- **Always creates `student` role**: Ignores any `requested_role` or account-type selection from metadata; the profile is always created with `role = 'student'`.
+- **SECURITY DEFINER**: Executes as the schema owner and bypasses RLS, since the trigger runs during Auth account creation (before the user can authenticate). The function itself has EXECUTE revoked from `authenticated` and `anon` roles.
+- **Backfill for existing users** (lines 107–119): The migration backfills all existing Auth users as students using the same logic.
+
+**Potential failure modes:**
+- **Metadata validation**: If `raw_user_meta_data` is malformed or contains unexpected data types, the trigger sanitizes and defaults rather than failing.
+- **Constraint violations**: If the display name violates the CHECK constraint (e.g., zero-length after trim), the trigger fails and rolls back the auth user creation. Auth systems should validate display names before registration.
+- **Database connection/permission failure**: If the trigger's INSERT fails due to database issues or permission problems, the entire Auth account creation fails. Ensure the trigger account has INSERT privilege on `public.profiles`.
+
+**Auth account creation must succeed or fail atomically** — if the trigger fails, the auth user creation is rolled back and the user receives an error. This is the correct behavior; account creation must be transactional.
+
+For testing, approved non-production test accounts should verify the trigger creates profiles with expected defaults and properly defaults invalid names.
 
 ## Account and profile deletion
 
@@ -52,10 +75,11 @@ CircuitLore targets ages 10–14, including children under 13. Do not enable pub
 ## Review and application procedure
 
 1. Review the table columns, role lifecycle, cascade behavior, RLS policies, function privileges, and SQL verification plan below.
-2. Decide whether account creation should remain closed until adult verification and child-consent procedures are defined.
-3. Back up/confirm the target Supabase project and inspect existing `auth.users` data before applying; the migration backfills existing accounts as students and does not promote metadata-requested adults.
-4. Apply the migration only through the reviewed Supabase migration workflow after approval. Do not paste service-role credentials into the frontend.
-5. Run the verification queries with dedicated test accounts or approved existing test users. Do not use real children's accounts for testing.
+2. **Run the pre-migration checklist** (`20261010000000_profiles_security_precheck.sql`) against the target Supabase project to detect any existing tables, functions, or triggers that would conflict with the migration. This read-only script identifies all conflicts without modifying the database.
+3. Decide whether account creation should remain closed until adult verification and child-consent procedures are defined.
+4. Back up/confirm the target Supabase project and inspect existing `auth.users` data before applying; the migration backfills existing accounts as students and does not promote metadata-requested adults.
+5. Apply the migration only through the reviewed Supabase migration workflow after approval. Do not paste service-role credentials into the frontend.
+6. Run the verification queries with dedicated test accounts or approved existing test users. Do not use real children's accounts for testing.
 
 ## SQL verification plan (not run)
 
