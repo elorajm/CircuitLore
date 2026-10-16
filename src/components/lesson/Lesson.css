@@ -1,0 +1,393 @@
+.lesson-page {
+  width: min(760px, 100%);
+  margin: 0 auto;
+  padding: var(--space-lg) 1rem var(--space-xl);
+  color: var(--color-text);
+  font-family: var(--font-body);
+}
+
+.lesson-page-header {
+  text-align: center;
+  margin-bottom: var(--space-md);
+}
+
+.lesson-page-header h1 {
+  font-family: var(--font-display);
+  margin: 0.25rem 0 0;
+}
+
+.lesson-eyebrow {
+  margin: 0;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.lesson-session {
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: var(--space-md);
+  display: grid;
+  gap: var(--space-sm);
+}
+
+@media (min-width: 720px) {
+  .lesson-session {
+    padding: var(--space-lg);
+  }
+}
+
+.lesson-step-label {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.lesson-progress {
+  width: 100%;
+  height: 0.6rem;
+  border-radius: 999px;
+  overflow: hidden;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.lesson-progress::-webkit-progress-bar {
+  background: var(--cream-200);
+  border-radius: 999px;
+}
+
+.lesson-progress::-webkit-progress-value {
+  background: linear-gradient(90deg, var(--color-accent-gold), var(--electric-blue-600));
+  border-radius: 999px;
+}
+
+.lesson-progress::-moz-progress-bar {
+  background: linear-gradient(90deg, var(--color-accent-gold), var(--electric-blue-600));
+  border-radius: 999px;
+}
+
+.lesson-banner {
+  margin: 0;
+  padding: var(--space-xs) var(--space-sm);
+  background: var(--color-success-bg);
+  color: var(--color-success);
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+}
+
+.lesson-intro-badge {
+  display: grid;
+  place-items: center;
+  width: 4.5rem;
+  height: 4.5rem;
+  margin: 0 auto;
+  border-radius: 50%;
+  background: var(--navy-800);
+  color: var(--gold-400);
+  animation: lesson-float 3s ease-in-out infinite;
+}
+
+.lesson-step-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.4rem, 3vw, 1.85rem);
+  text-align: center;
+}
+
+.lesson-intro {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.lesson-blocks {
+  display: grid;
+  gap: var(--space-sm);
+}
+
+.lesson-block {
+  padding: var(--space-sm) var(--space-md);
+  border-left: 5px solid var(--navy-700);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-muted);
+  animation: lesson-fade-in var(--transition-medium) both;
+  animation-delay: var(--block-delay, 0s);
+}
+
+.lesson-block-guide {
+  border-left-color: var(--color-accent-gold);
+}
+
+.lesson-block-scene {
+  border-left-color: var(--electric-blue-600);
+  font-style: italic;
+}
+
+.lesson-block-history {
+  border-left-color: var(--navy-700);
+}
+
+.lesson-block-science {
+  border-left-color: var(--color-success);
+}
+
+.lesson-block-label {
+  margin: 0 0 0.25rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted);
+}
+
+.lesson-block-text {
+  margin: 0;
+  line-height: 1.6;
+}
+
+.knowledge-check {
+  display: grid;
+  gap: var(--space-sm);
+}
+
+.knowledge-question {
+  border: 1px solid var(--cream-200);
+  border-radius: var(--radius-md);
+  padding: var(--space-sm) var(--space-md);
+  margin: 0;
+  min-width: 0;
+}
+
+.knowledge-question legend {
+  font-weight: 700;
+  padding: 0 0.25rem;
+}
+
+.knowledge-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding: 0.35rem 0;
+}
+
+.knowledge-option input {
+  margin-top: 0.3rem;
+  width: 1.1rem;
+  height: 1.1rem;
+  accent-color: var(--navy-700);
+}
+
+.knowledge-option label {
+  cursor: pointer;
+  line-height: 1.4;
+}
+
+.knowledge-feedback {
+  margin-top: var(--space-xs);
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-sm);
+}
+
+.knowledge-feedback p {
+  margin: 0.2rem 0;
+}
+
+.knowledge-feedback.is-correct {
+  background: var(--color-success-bg);
+  color: var(--color-success);
+}
+
+.knowledge-feedback.is-incorrect {
+  background: var(--color-error-bg);
+  color: var(--color-error);
+}
+
+.knowledge-feedback-verdict {
+  font-weight: 700;
+}
+
+.knowledge-status {
+  margin: 0;
+  font-weight: 600;
+}
+
+.lesson-quiz-actions,
+.lesson-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  align-items: center;
+}
+
+.lesson-nav {
+  margin-top: var(--space-xs);
+  justify-content: space-between;
+}
+
+.lesson-saving {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+.lesson-alert {
+  padding: var(--space-sm) var(--space-md);
+  background: var(--color-error-bg);
+  color: var(--color-error);
+  border-radius: var(--radius-md);
+  display: grid;
+  gap: var(--space-xs);
+  justify-items: start;
+}
+
+.lesson-alert p {
+  margin: 0;
+}
+
+.lesson-hint {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+}
+
+/* Lesson buttons sit on white and cream surfaces, so they use navy and gold
+   rather than the cream-on-navy styles from the shared .btn-secondary. */
+.lesson-page .btn-primary {
+  background-color: var(--gold-500);
+  color: var(--navy-900);
+  border-color: var(--navy-900);
+}
+
+.lesson-page .btn-primary:not(:disabled):hover {
+  background-color: var(--gold-400);
+  box-shadow: var(--shadow-card-hover);
+}
+
+.lesson-page .btn-secondary {
+  background-color: var(--color-surface);
+  color: var(--navy-800);
+  border-color: var(--navy-700);
+}
+
+.lesson-page .btn-secondary:not(:disabled):hover {
+  background-color: var(--cream-200);
+  color: var(--navy-900);
+  border-color: var(--navy-900);
+}
+
+.lesson-page .btn:disabled {
+  background-color: var(--cream-200);
+  color: var(--color-text-muted);
+  border: 2px dashed var(--gold-700);
+  box-shadow: none;
+  opacity: 1;
+}
+
+.lesson-page .btn:focus-visible {
+  outline: 3px solid var(--navy-900);
+  outline-offset: 3px;
+}
+
+.lesson-complete {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-md) var(--space-sm);
+  text-align: center;
+  background: var(--cream-100);
+  border: 2px solid var(--gold-500);
+  border-radius: var(--radius-lg);
+  animation: lesson-fade-in var(--transition-medium) both;
+}
+
+.lesson-complete-icon {
+  display: grid;
+  place-items: center;
+  width: 5.5rem;
+  height: 5.5rem;
+  border-radius: 50%;
+  background: var(--navy-900);
+  color: var(--gold-400);
+  animation: lesson-celebrate var(--transition-medium) both;
+}
+
+.lesson-complete-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 4vw, 2.3rem);
+  color: var(--navy-900);
+}
+
+.lesson-complete-message {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.lesson-complete-score {
+  margin: 0;
+  font-weight: 700;
+  color: var(--navy-800);
+}
+
+.lesson-complete-saved {
+  margin: 0;
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-sm);
+  background: var(--color-success-bg);
+  color: var(--color-success);
+  font-weight: 600;
+}
+
+.loading-message {
+  text-align: center;
+  color: var(--color-text-muted);
+}
+
+@keyframes lesson-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes lesson-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes lesson-celebrate {
+  from {
+    transform: scale(0.85);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lesson-block {
+    animation: none;
+  }
+
+  .lesson-intro-badge {
+    animation: none;
+  }
+
+  .lesson-complete,
+  .lesson-complete-icon {
+    animation: none;
+  }
+}

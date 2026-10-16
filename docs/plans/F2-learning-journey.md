@@ -31,17 +31,28 @@ A student's basic journey will be:
 
 ## Learning Structure
 
-The journey will be divided into sections.
+The journey will be divided into sections with a defined progression order. Each lesson has a unique, readable identifier.
 
-Possible structure:
+### Lesson Identifier Format
 
-### Stage 1 — The Beginning
+Lessons use readable, stable IDs like:
+- `history-001`, `history-002`, ... for historical figure lessons
+- `concept-001`, `concept-002`, ... for electricity concept lessons
+- `modern-001`, `modern-002`, ... for modern electricity lessons
+
+Lesson IDs never change once assigned, allowing stable progress tracking across sessions.
+
+### Learning Stages
+
+#### Stage 1 — The Beginning
 
 Introduce electricity as something people did not always understand.
 
 The student begins exploring early observations and questions about electricity.
 
-### Stage 2 — Discovering Electricity
+**First lesson**: `history-001` — Introduction to electricity
+
+#### Stage 2 — Discovering Electricity
 
 Historical figures introduce important discoveries and experiments.
 
@@ -53,7 +64,9 @@ Each section should answer:
 - What did the experiment teach us?
 - Why does it matter today?
 
-### Stage 3 — Understanding Electricity
+**Lessons**: `history-001` through `history-007`
+
+#### Stage 3 — Understanding Electricity
 
 Historical discoveries begin connecting directly to concepts such as:
 
@@ -64,7 +77,9 @@ Historical discoveries begin connecting directly to concepts such as:
 - Conductors
 - Insulators
 
-### Stage 4 — Building Circuits
+**Lessons**: `concept-001` through `concept-006`
+
+#### Stage 4 — Building Circuits
 
 Students learn:
 
@@ -77,7 +92,9 @@ Students learn:
 
 Students begin using the virtual circuit lab.
 
-### Stage 5 — Electricity Today
+**Lessons**: `circuit-001` through `circuit-005`
+
+#### Stage 5 — Electricity Today
 
 Students see how earlier discoveries connect to modern uses of electricity.
 
@@ -90,28 +107,30 @@ Possible examples:
 - Renewable energy
 - Everyday technology
 
+**Lessons**: `modern-001` through `modern-005`
+
 ---
 
-## Historical Figures
+## Lesson Definitions
 
-Historical figures will appear throughout the earlier learning journey.
+Lesson definitions are stored in the React application initially (in a JSON file or constants). Each lesson has:
 
-The final list will be determined through research.
+```javascript
+{
+  id: "history-001",                    // Unique, stable lesson ID
+  title: "Electricity Mysteries",        // Display name
+  stage: 1,                              // Learning stage (1-5)
+  category: "history",                   // history, concept, circuit, modern
+  order: 1,                              // Position in journey (1, 2, 3, ...)
+  description: "Early observations of electricity",
+  requiredToUnlockNext: true,            // Whether completion unlocks next lesson
+  estimatedMinutes: 10
+}
+```
 
-Each figure should have a clear reason for appearing and connect to the electrical concept being taught.
+Lesson definitions define the curriculum structure. Progress tracking (in F6) uses these IDs to record student completion.
 
-Historical figures should not simply provide long blocks of text.
-
-They may:
-
-- Introduce themselves
-- Explain an experiment
-- Ask the student a question
-- Guide an interactive activity
-- Explain what was learned
-- Connect their discovery to the next part of the journey
-
-All historical information should be researched and verified before being added to the application.
+Lesson content (text, images, interactive elements) will be added during implementation with the content for each stage.
 
 ---
 
@@ -228,6 +247,46 @@ Possible saved information includes:
 - Unlock status
 
 The detailed progress system will be planned in F6.
+
+## Lesson Definitions
+
+Lesson definitions are stored in the React application initially (in a JSON file or constants). Each lesson has:
+
+```javascript
+{
+  id: "history-001",                    // Unique, stable lesson ID
+  title: "Electricity Mysteries",        // Display name
+  stage: 1,                              // Learning stage (1-5)
+  category: "history",                   // history, concept, circuit, modern
+  order: 1,                              // Position in journey (1, 2, 3, ...)
+  description: "Early observations of electricity",
+  requiredToUnlockNext: true,            // Whether completion unlocks next lesson
+  estimatedMinutes: 10
+}
+```
+
+Lesson definitions define the curriculum structure. Progress tracking (in F6) uses these IDs to record student completion.
+
+Lesson content (text, images, interactive elements) will be added during implementation with the content for each stage.
+
+## Progress Tracking Integration (F6)
+
+As the student moves through the journey, their progress is saved in Supabase.
+
+Each lesson has a progress record tracking:
+
+- **Status**: `not_started`, `in_progress`, or `completed`
+- **Completed date**: When the student finished the lesson
+- **Last accessed**: When they last opened the lesson
+- **Attempts**: How many times they've restarted the lesson
+
+This progress data allows:
+- Students to resume from their last location when they return
+- The dashboard to show "Continue Your Journey" with the next lesson
+- Content unlocking based on completed prerequisites
+- Overall progress calculation as a percentage
+
+Progress is saved automatically whenever a student reaches the end of a lesson or clicks "Mark Complete."
 
 ---
 

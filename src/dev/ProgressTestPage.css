@@ -1,0 +1,32 @@
+.dev-progress-test {
+  width: min(640px, 100%);
+  margin: 0 auto;
+  padding: var(--space-xl) 1.5rem;
+}
+
+.dev-progress-test-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.dev-progress-test-result {
+  margin-top: 1.5rem;
+}
+
+.dev-progress-test-result dl {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.4rem 1rem;
+  margin: 0;
+}
+
+.dev-progress-test-result dt {
+  font-weight: 600;
+}
+
+.dev-progress-test-result dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}

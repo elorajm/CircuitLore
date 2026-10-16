@@ -66,4 +66,16 @@ describe('Protected routes', () => {
 
     expect(await screen.findByRole('heading', { level: 1, name: 'Log In' })).toBeInTheDocument()
   })
+
+  it('redirects an unauthenticated visitor from a lesson route to /login', async () => {
+    renderApp('/journey/history-001')
+
+    expect(await screen.findByRole('heading', { level: 1, name: 'Log In' })).toBeInTheDocument()
+  })
+
+  it('redirects an unauthenticated visitor from the dev progress test page to /login', async () => {
+    renderApp('/dev/progress-test')
+
+    expect(await screen.findByRole('heading', { level: 1, name: 'Log In' })).toBeInTheDocument()
+  })
 })

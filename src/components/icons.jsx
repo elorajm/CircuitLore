@@ -83,6 +83,16 @@ export function QuizIcon(props) {
   )
 }
 
+export function TrophyIcon(props) {
+  return (
+    <svg {...commonProps} {...props}>
+      <path d="M8 4h8v5a4 4 0 0 1-8 0z" />
+      <path d="M8 6H5.5a2.5 2.5 0 0 0 2.5 3.5M16 6h2.5a2.5 2.5 0 0 1-2.5 3.5" />
+      <path d="M12 13v4M8.5 20.5h7M9.5 17h5" />
+    </svg>
+  )
+}
+
 export function UsersIcon(props) {
   return (
     <svg {...commonProps} {...props}>
