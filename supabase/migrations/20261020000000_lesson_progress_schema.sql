@@ -25,8 +25,9 @@ BEGIN;
 -- Column privilege model:
 -- - authenticated can INSERT only: student_id, lesson_id, status, completed_at, last_accessed_at, attempts_count, metadata
 -- - authenticated can UPDATE only: status, completed_at, last_accessed_at, attempts_count, metadata
--- - authenticated cannot INSERT or UPDATE: id, created_at, updated_at, student_id (via WITH CHECK)
--- - This model supports upsert operations (INSERT ... ON CONFLICT DO UPDATE) while protecting server-owned fields
+-- - authenticated cannot INSERT id, created_at, or updated_at, and cannot UPDATE id, student_id, created_at, or updated_at
+-- - student_id can be inserted only as the caller's own ID (enforced by RLS WITH CHECK)
+-- - Upsert (INSERT ... ON CONFLICT DO UPDATE) is not usable by authenticated: it needs UPDATE on student_id and lesson_id, which are not granted. The app reads the row, then inserts or runs a compare-and-set update
 
 CREATE TABLE public.lesson_progress (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
