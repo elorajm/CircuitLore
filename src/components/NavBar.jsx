@@ -4,20 +4,21 @@ import { BoltIcon } from './icons.jsx'
 import { useAuth } from '../hooks/useAuth.js'
 import './NavBar.css'
 
-const navLinks = [
-  { to: '/', label: 'Home', end: true },
-  { to: '/journey', label: 'Learning Journey' },
+const studentLinks = [
+  { to: '/dashboard', label: 'Dashboard' },
+  { to: '/journey', label: 'My Journey' },
   { to: '/history', label: 'History' },
   { to: '/lessons', label: 'Lessons' },
-  { to: '/activities', label: 'Activities' },
   { to: '/circuit-lab', label: 'Circuit Lab' },
-  { to: '/dashboard', label: 'Dashboard' },
 ]
+
+const visitorLinks = [{ to: '/', label: 'Home', end: true }]
 
 function NavBar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const { isAuthenticated, user, signOut } = useAuth()
+  const { isAuthenticated, loading, user, signOut } = useAuth()
   const navigate = useNavigate()
+  const navLinks = loading ? [] : isAuthenticated ? studentLinks : visitorLinks
 
   const closeMenu = () => setIsMenuOpen(false)
 
@@ -66,7 +67,7 @@ function NavBar() {
         ))}
 
         <div className="navbar-auth">
-          {isAuthenticated ? (
+          {loading ? null : isAuthenticated ? (
             <>
               <span className="navbar-user">Hi, {displayName}</span>
               <button type="button" className="navbar-logout" onClick={handleLogout}>

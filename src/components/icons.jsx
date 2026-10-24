@@ -93,6 +93,23 @@ export function TrophyIcon(props) {
   )
 }
 
+export function CheckIcon(props) {
+  return (
+    <svg {...commonProps} {...props}>
+      <path d="M5 12.5 10 17l9-10" />
+    </svg>
+  )
+}
+
+export function LockIcon(props) {
+  return (
+    <svg {...commonProps} {...props}>
+      <rect x="5" y="11" width="14" height="9" rx="2" />
+      <path d="M8 11V8a4 4 0 0 1 8 0v3" />
+    </svg>
+  )
+}
+
 export function UsersIcon(props) {
   return (
     <svg {...commonProps} {...props}>
