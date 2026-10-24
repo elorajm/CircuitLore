@@ -60,6 +60,27 @@ describe('Unknown routes', () => {
   })
 })
 
+describe('History timeline', () => {
+  it('renders the History page with the timeline and the first milestone selected', () => {
+    renderApp('/history')
+
+    expect(screen.getByRole('heading', { level: 1, name: 'Meet the Discoverers' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Thales and rubbed amber/ })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    )
+  })
+
+  it('sends a logged-out visitor from the timeline lesson link to /login', async () => {
+    const user = userEvent.setup()
+    renderApp('/history')
+
+    await user.click(await screen.findByRole('link', { name: 'Start lesson' }))
+
+    expect(await screen.findByRole('heading', { level: 1, name: 'Log In' })).toBeInTheDocument()
+  })
+})
+
 describe('Protected routes', () => {
   it('redirects an unauthenticated visitor from /dashboard to /login', async () => {
     renderApp('/dashboard')

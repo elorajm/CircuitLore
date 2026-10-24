@@ -1,26 +1,196 @@
-.journey-start {
+.journey-page {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: var(--space-xs);
-  padding: 0 1rem var(--space-lg);
+  gap: var(--space-lg);
+  max-width: 60rem;
+  margin: 0 auto;
+  padding: var(--space-lg) 1rem var(--space-xl);
+}
+
+.journey-hero {
+  padding: var(--space-lg);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, var(--navy-900), var(--navy-700));
+  color: var(--color-text-inverse);
+  box-shadow: var(--shadow-card);
   text-align: center;
 }
 
-.journey-badge {
+.journey-eyebrow {
+  margin: 0 0 var(--space-xs);
+  color: var(--gold-400);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.journey-hero .journey-title {
+  margin: 0;
+  color: #ffffff;
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 5vw, 2.75rem);
+  line-height: 1.15;
+}
+
+.journey-hero .journey-welcome {
+  max-width: 40rem;
+  margin: var(--space-sm) auto 0;
+  color: #ffffff;
+  font-size: 1.1rem;
+  line-height: 1.6;
+}
+
+.journey-section-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 3.5vw, 2rem);
+  color: var(--navy-900);
+}
+
+.journey-section-intro {
+  max-width: 40rem;
+  margin: var(--space-xs) 0 0;
+  color: var(--color-text-muted);
+  line-height: 1.6;
+}
+
+.journey-chapter,
+.journey-future {
+  display: flex;
+  flex-direction: column;
+}
+
+.journey-lesson-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  margin-top: var(--space-md);
+  padding: var(--space-lg);
+  border-top: 6px solid var(--color-accent-gold);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+}
+
+.journey-lesson-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-xs);
+}
+
+.journey-lesson-title {
+  margin: 0;
+  font-size: 1.6rem;
+  color: var(--navy-900);
+}
+
+.journey-lesson-description {
+  margin: 0;
+  color: var(--color-text);
+  line-height: 1.6;
+}
+
+.journey-lesson-parts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.journey-lesson-parts li {
+  padding: 0.3rem 0.85rem;
+  border-radius: 999px;
+  background: var(--color-surface-muted);
+  color: var(--navy-900);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.journey-lesson-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-xs);
+  margin-top: var(--space-xs);
+}
+
+.journey-badge,
+.journey-pill {
   display: inline-block;
   padding: 0.3rem 0.9rem;
   border-radius: 999px;
-  background: var(--navy-900);
-  color: var(--gold-400);
   font-size: 0.85rem;
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 
+.journey-badge {
+  background: var(--navy-900);
+  color: var(--gold-400);
+}
+
+.journey-pill {
+  background: var(--navy-700);
+  color: var(--electric-blue-400);
+}
+
 .journey-status,
 .journey-hint {
   margin: 0;
   color: var(--color-text-muted);
+}
+
+.journey-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: var(--space-sm);
+  margin: var(--space-md) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.journey-preview-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  height: 100%;
+  box-sizing: border-box;
+  padding: var(--space-md);
+  border: 2px dashed var(--gold-500);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-muted);
+}
+
+.journey-preview-card .journey-preview-label {
+  margin: 0;
+  color: var(--gold-700);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.journey-preview-card .journey-preview-title {
+  margin: 0;
+  font-size: 1.1rem;
+  color: var(--navy-900);
+}
+
+.journey-preview-card .journey-preview-teaser {
+  margin: 0;
+  color: var(--color-text-muted);
+  line-height: 1.5;
+}
+
+@media (max-width: 480px) {
+  .journey-hero,
+  .journey-lesson-card {
+    padding: var(--space-md);
+  }
 }
