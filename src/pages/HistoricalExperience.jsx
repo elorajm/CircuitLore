@@ -1,8 +1,11 @@
+import { useLocation } from 'react-router-dom'
 import HistoryTimeline from '../components/history/HistoryTimeline.jsx'
 import timelineMilestones from '../content/history/timeline.js'
 import '../components/history/HistoryTimeline.css'
 
 function HistoricalExperience() {
+  const location = useLocation()
+
   return (
     <main className="history-page">
       <header className="history-page-header">
@@ -14,7 +17,8 @@ function HistoricalExperience() {
         </p>
       </header>
 
-      <HistoryTimeline milestones={timelineMilestones} />
+      {/* Keyed by the hash so a link such as /history#du-fay-two-kinds opens that milestone */}
+      <HistoryTimeline key={location.hash} milestones={timelineMilestones} />
     </main>
   )
 }

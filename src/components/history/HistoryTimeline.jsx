@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { useLessonStatus } from '../../hooks/useLessonStatus.js'
 import { isLessonAvailable } from '../../content/history/lessonAvailability.js'
+import { playableLessonsForMilestone } from '../../content/history/connections.js'
 import './HistoryTimeline.css'
 
 const LESSON_ACTIONS = {
@@ -96,6 +97,27 @@ function BookIcon() {
   )
 }
 
+function RelatedLessons({ lessons }) {
+  return (
+    <div className="timeline-callout timeline-related">
+      <h4>{lessons.length === 1 ? 'Connected lesson' : 'Connected lessons'}</h4>
+      <ul className="timeline-related-list">
+        {lessons.map((lesson) => (
+          <li key={lesson.lessonId}>
+            <Link to={`/journey/${lesson.lessonId}`}>{lesson.title}</Link>
+            <p>{lesson.note}</p>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
+function milestoneIndexFromHash(hash, milestones) {
+  const id = hash.replace('#', '')
+  return milestones.findIndex((milestone) => milestone.id === id)
+}
+
 function gapLabel(milestones, index) {
   if (index === 0) return null
   const gap = milestones[index].year - milestones[index - 1].year
@@ -105,7 +127,9 @@ function gapLabel(milestones, index) {
 }
 
 function HistoryTimeline({ milestones }) {
-  const [selectedIndex, setSelectedIndex] = useState(0)
+  const location = useLocation()
+  const linkedIndex = milestoneIndexFromHash(location.hash, milestones)
+  const [selectedIndex, setSelectedIndex] = useState(Math.max(linkedIndex, 0))
   const [notesOpen, setNotesOpen] = useState(false)
   const itemRefs = useRef([])
   const hasSelectionChanged = useRef(false)
@@ -114,11 +138,20 @@ function HistoryTimeline({ milestones }) {
   const isFirst = selectedIndex === 0
   const isLast = selectedIndex === milestones.length - 1
   const gap = gapLabel(milestones, selectedIndex)
+  const relatedLessons = playableLessonsForMilestone(selected)
+  const isLinkedMilestone = linkedIndex >= 0
 
   useEffect(() => {
     if (!hasSelectionChanged.current) return
     itemRefs.current[selectedIndex]?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' })
   }, [selectedIndex])
+
+  // A link such as /history#gilbert-electric opens with that milestone's details in view
+  useEffect(() => {
+    if (isLinkedMilestone) {
+      document.getElementById('timeline-detail')?.scrollIntoView?.({ block: 'start' })
+    }
+  }, [isLinkedMilestone])
 
   function selectMilestone(index) {
     if (index === selectedIndex) return
@@ -189,8 +222,10 @@ function HistoryTimeline({ milestones }) {
         {isLessonAvailable(selected.lessonId) ? (
           <LessonAction lessonId={selected.lessonId} />
         ) : (
-          <LessonComingSoon />
+          relatedLessons.length === 0 && <LessonComingSoon />
         )}
+
+        {relatedLessons.length > 0 && <RelatedLessons lessons={relatedLessons} />}
 
         <div className="timeline-notes">
           <button

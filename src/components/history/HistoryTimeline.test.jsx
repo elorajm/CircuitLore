@@ -1,9 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { MemoryRouter } from 'react-router-dom'
+import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import HistoryTimeline from './HistoryTimeline.jsx'
+import HistoricalExperience from '../../pages/HistoricalExperience.jsx'
 import timelineMilestones from '../../content/history/timeline.js'
+import { playableLessonsForMilestone } from '../../content/history/connections.js'
 
 const { useAuthMock, getLessonProgressMock } = vi.hoisted(() => ({
   useAuthMock: vi.fn(),
@@ -151,8 +153,9 @@ describe('HistoryTimeline', () => {
     expect(lessonLink).toHaveAttribute('href', '/journey/history-001')
 
     await user.click(getMarker('Gilbert names'))
-    expect(screen.queryByRole('link', { name: /lesson/ })).not.toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Lesson coming soon' })).toBeDisabled()
+    expect(screen.queryByRole('link', { name: 'Start lesson' })).not.toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Electricity Mysteries' })).toHaveAttribute('href', '/journey/history-001')
+    expect(screen.queryByRole('button', { name: 'Lesson coming soon' })).not.toBeInTheDocument()
   })
 
   it('gives every milestone a lesson control, disabled when its lesson is not built', async () => {
@@ -163,8 +166,16 @@ describe('HistoryTimeline', () => {
     for (let index = 0; index < total; index += 1) {
       await user.click(markers[index])
 
-      if (timelineMilestones[index].lessonId) {
+      const milestone = timelineMilestones[index]
+      const related = playableLessonsForMilestone(milestone)
+
+      if (milestone.lessonId) {
         expect(await screen.findByRole('link', { name: 'Start lesson' })).toBeInTheDocument()
+      } else if (related.length > 0) {
+        for (const lesson of related) {
+          expect(screen.getByRole('link', { name: lesson.title })).toHaveAttribute('href', `/journey/${lesson.lessonId}`)
+        }
+        expect(screen.queryByRole('button', { name: 'Lesson coming soon' })).not.toBeInTheDocument()
       } else {
         expect(screen.getByRole('button', { name: 'Lesson coming soon' })).toBeDisabled()
         expect(screen.queryByRole('link', { name: /lesson/ })).not.toBeInTheDocument()
@@ -323,5 +334,48 @@ describe('HistoryTimeline lesson status', () => {
     expect(screen.getByRole('link', { name: 'Start lesson' })).toBeInTheDocument()
     expect(screen.queryByText('Lesson completed!')).not.toBeInTheDocument()
     expect(screen.queryByText(/Log in to/)).not.toBeInTheDocument()
+  })
+})
+
+describe('HistoryTimeline connected lessons and links', () => {
+  function renderAt(path) {
+    return render(
+      <MemoryRouter initialEntries={[path]}>
+        <Routes>
+          <Route path="/history" element={<HistoricalExperience />} />
+        </Routes>
+      </MemoryRouter>,
+    )
+  }
+
+  it('shows each connected lesson with its note', async () => {
+    const user = userEvent.setup()
+    renderTimeline()
+
+    await user.click(getMarker('The electron'))
+
+    expect(screen.getByRole('link', { name: 'Electric Charge' })).toHaveAttribute('href', '/journey/concept-001')
+    expect(screen.getByRole('link', { name: 'Electric Current' })).toHaveAttribute('href', '/journey/concept-002')
+    expect(screen.getByText(/Electrons are the particles that move through wires/)).toBeInTheDocument()
+  })
+
+  it('opens the milestone named in the link when the timeline loads with a hash', async () => {
+    renderAt('/history#du-fay-two-kinds')
+
+    expect(await screen.findByRole('heading', { level: 3, name: 'Two kinds of electricity' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Electric Charge' })).toHaveAttribute('href', '/journey/concept-001')
+  })
+
+  it('falls back to the first milestone when the hash names no milestone', async () => {
+    renderAt('/history#not-a-milestone')
+
+    expect(await screen.findByRole('heading', { level: 3, name: 'Thales and rubbed amber' })).toBeInTheDocument()
+  })
+
+  it('lists no connected lessons for a milestone with none built, and never shows an unbuilt lesson', () => {
+    expect(playableLessonsForMilestone(getMilestone('edison-lamp'))).toEqual([])
+    expect(playableLessonsForMilestone(getMilestone('gray-conductors')).map((lesson) => lesson.lessonId)).toEqual([
+      'concept-002',
+    ])
   })
 })

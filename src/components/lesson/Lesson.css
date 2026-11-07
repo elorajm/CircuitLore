@@ -391,3 +391,31 @@
     animation: none;
   }
 }
+
+.lesson-history {
+  display: grid;
+  gap: var(--space-sm);
+  justify-items: start;
+  padding: var(--space-sm) var(--space-md);
+  border-left: 5px solid var(--color-accent-gold);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+
+.lesson-history-title {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.lesson-history-list {
+  display: grid;
+  gap: var(--space-xs);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lesson-history-list p {
+  margin: 0.1rem 0 0;
+  line-height: 1.6;
+}

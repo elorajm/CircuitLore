@@ -388,3 +388,16 @@
     scroll-behavior: auto;
   }
 }
+
+.timeline-related-list {
+  display: grid;
+  gap: var(--space-sm);
+  margin: 0.25rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.timeline-related-list p {
+  margin: 0.1rem 0 0;
+  line-height: 1.6;
+}

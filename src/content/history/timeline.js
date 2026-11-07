@@ -76,6 +76,12 @@ const timelineMilestones = [
     historianNote:
       'Gilbert used the Neo-Latin word "electricus," meaning "like amber," for this effect. The word was older than Gilbert, but he is credited with first applying it to electrical attraction. The English word "electricity" comes from it.',
     lessonId: null,
+    relatedLessons: [
+      {
+        lessonId: 'history-001',
+        note: 'Electricity Mysteries follows the amber experiments that led Gilbert to the word electric.',
+      },
+    ],
     sources: [
       {
         label:
@@ -108,6 +114,12 @@ const timelineMilestones = [
     historianNote:
       'Guericke\'s preface to Experimenta Nova is dated 1663, so the machine predates that. The book was published in 1672. Spark and glow effects are not confirmed in the sources checked for this review.',
     lessonId: null,
+    relatedLessons: [
+      {
+        lessonId: 'concept-001',
+        note: 'Guericke made static charge by rubbing. Electric Charge explains what rubbing does to the charges.',
+      },
+    ],
     sources: [
       {
         label:
@@ -135,6 +147,12 @@ const timelineMilestones = [
     historianNote:
       'Gray was not a member of the Royal Society. His results reached the Society through other members, such as Granville Wheler.',
     lessonId: null,
+    relatedLessons: [
+      {
+        lessonId: 'concept-002',
+        note: 'Gray showed that charge can travel along some materials. Electric Current explains why charge needs a complete loop of conductors to keep moving.',
+      },
+    ],
     sources: [
       {
         label:
@@ -167,6 +185,12 @@ const timelineMilestones = [
     historianNote:
       'Du Fay\'s names "vitreous" and "resinous" were later judged to be mislabelled, but the idea of two opposite kinds of charge survived. The two-fluid explanation he proposed was replaced by other models.',
     lessonId: null,
+    relatedLessons: [
+      {
+        lessonId: 'concept-001',
+        note: 'Du Fay found two kinds of charge. Electric Charge shows why like charges repel and opposite charges attract.',
+      },
+    ],
     sources: [
       {
         label:
@@ -220,6 +244,12 @@ const timelineMilestones = [
     historianNote:
       'The kite story is popular but disputed. The Dalibard experiment is better documented.',
     lessonId: null,
+    relatedLessons: [
+      {
+        lessonId: 'concept-001',
+        note: 'Lightning is a huge static spark. Electric Charge explains the charge that builds up before it jumps.',
+      },
+    ],
     sources: [
       {
         label:
@@ -256,6 +286,12 @@ const timelineMilestones = [
     historianNote:
       'Galvani was wrong about where the electricity came from, but his experiments started the debate that Volta answered.',
     lessonId: null,
+    relatedLessons: [
+      {
+        lessonId: 'concept-002',
+        note: 'Volta built a pile that gave a steady current. Electric Current shows what a complete loop needs to keep that current flowing.',
+      },
+    ],
     sources: [
       {
         label:
@@ -379,6 +415,16 @@ const timelineMilestones = [
     historianNote:
       'The name "electron" was proposed by George Johnstone Stoney in 1891. Emil Wiechert and Walter Kaufmann also worked on the same charge-to-mass ratio in the late 1890s.',
     lessonId: null,
+    relatedLessons: [
+      {
+        lessonId: 'concept-001',
+        note: 'Thomson found tiny negative particles. Electric Charge explains why electrons carry negative charge.',
+      },
+      {
+        lessonId: 'concept-002',
+        note: 'Electrons are the particles that move through wires. Electric Current explains the loop they travel around.',
+      },
+    ],
     sources: [
       {
         label:

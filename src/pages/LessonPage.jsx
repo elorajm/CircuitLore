@@ -8,6 +8,7 @@ import {
   resetProgress,
 } from '../services/progressService.js'
 import LessonSession from '../components/lesson/LessonSession.jsx'
+import LessonHistoryConnections from '../components/lesson/LessonHistoryConnections.jsx'
 import '../components/lesson/Lesson.css'
 
 function LessonPage() {
@@ -41,6 +42,7 @@ function LessonPage() {
 
   return (
     <LessonFrame title={lesson.title}>
+      <LessonHistoryConnections lessonId={lesson.id} />
       <LoadedLesson
         key={lesson.id}
         lessonId={lesson.id}

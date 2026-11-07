@@ -715,3 +715,22 @@ describe('Electric Current lesson (concept-002) progress', () => {
     confirmSpy.mockRestore()
   })
 })
+
+describe('lesson pages connect to the historical timeline', () => {
+  beforeEach(() => {
+    getLessonProgressMock.mockReset()
+  })
+
+  it('shows the discoveries behind Electric Charge above the lesson, with a way back to the timeline', async () => {
+    getLessonProgressMock.mockResolvedValue(null)
+    renderLesson('/journey/concept-001')
+
+    const panel = screen.getByRole('complementary', { name: 'Where these ideas came from' })
+    expect(within(panel).getByRole('link', { name: /Two kinds of electricity/ })).toHaveAttribute(
+      'href',
+      '/history#du-fay-two-kinds',
+    )
+    expect(within(panel).getByRole('link', { name: 'Back to the timeline' })).toHaveAttribute('href', '/history')
+    expect(await screen.findByRole('button', { name: 'Begin' })).toBeInTheDocument()
+  })
+})
