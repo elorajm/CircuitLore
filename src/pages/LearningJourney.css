@@ -369,3 +369,9 @@
   margin: 0;
   line-height: 1.6;
 }
+
+/* The lab button sits on a white card, so it uses the gold primary style with a strong focus ring */
+.journey-lab .btn:focus-visible {
+  outline: 3px solid var(--navy-900);
+  outline-offset: 3px;
+}

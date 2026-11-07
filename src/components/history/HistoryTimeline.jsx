@@ -46,8 +46,9 @@ function LessonComingSoon() {
   )
 }
 
-function LessonAction({ lessonId }) {
+function LessonAction({ lessonId, lessonTitle }) {
   const status = useLessonStatus(lessonId)
+  const hintId = `timeline-lesson-hint-${lessonId}`
 
   if (status === 'checking') {
     return (
@@ -65,11 +66,12 @@ function LessonAction({ lessonId }) {
       <Link
         className="btn btn-primary"
         to={`/journey/${lessonId}`}
-        aria-describedby="timeline-lesson-hint"
+        aria-label={lessonTitle ? `${action.label}: ${lessonTitle}` : undefined}
+        aria-describedby={hintId}
       >
         {action.label}
       </Link>
-      <p id="timeline-lesson-hint" className="timeline-lesson-hint">
+      <p id={hintId} className="timeline-lesson-hint">
         {action.hint}
       </p>
     </div>
@@ -103,9 +105,10 @@ function RelatedLessons({ lessons }) {
       <h4>{lessons.length === 1 ? 'Connected lesson' : 'Connected lessons'}</h4>
       <ul className="timeline-related-list">
         {lessons.map((lesson) => (
-          <li key={lesson.lessonId}>
-            <Link to={`/journey/${lesson.lessonId}`}>{lesson.title}</Link>
-            <p>{lesson.note}</p>
+          <li key={lesson.lessonId} className="timeline-related-item">
+            <p className="timeline-related-title">{lesson.title}</p>
+            <p className="timeline-related-note">{lesson.note}</p>
+            <LessonAction lessonId={lesson.lessonId} lessonTitle={lesson.title} />
           </li>
         ))}
       </ul>
@@ -118,7 +121,7 @@ function RelatedLab({ note }) {
     <div className="timeline-callout timeline-related">
       <h4>Try it yourself</h4>
       <p>{note}</p>
-      <Link className="btn btn-secondary" to="/circuit-lab">
+      <Link className="btn btn-primary" to="/circuit-lab">
         Build it in the Circuit Lab
       </Link>
     </div>

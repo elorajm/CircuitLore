@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { MemoryRouter, Route, Routes } from 'react-router-dom'
+import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom'
 import HistoryTimeline from './HistoryTimeline.jsx'
 import HistoricalExperience from '../../pages/HistoricalExperience.jsx'
 import timelineMilestones from '../../content/history/timeline.js'
@@ -154,7 +154,7 @@ describe('HistoryTimeline', () => {
 
     await user.click(getMarker('Gilbert names'))
     expect(screen.queryByRole('link', { name: 'Start lesson' })).not.toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Electricity Mysteries' })).toHaveAttribute('href', '/journey/history-001')
+    expect(screen.getByRole('link', { name: 'Start lesson: Electricity Mysteries' })).toHaveAttribute('href', '/journey/history-001')
     expect(screen.queryByRole('button', { name: 'Lesson coming soon' })).not.toBeInTheDocument()
   })
 
@@ -173,7 +173,7 @@ describe('HistoryTimeline', () => {
         expect(await screen.findByRole('link', { name: 'Start lesson' })).toBeInTheDocument()
       } else if (related.length > 0) {
         for (const lesson of related) {
-          expect(screen.getByRole('link', { name: lesson.title })).toHaveAttribute('href', `/journey/${lesson.lessonId}`)
+          expect(screen.getByRole('link', { name: `Start lesson: ${lesson.title}` })).toHaveAttribute('href', `/journey/${lesson.lessonId}`)
         }
         expect(screen.queryByRole('button', { name: 'Lesson coming soon' })).not.toBeInTheDocument()
       } else {
@@ -354,8 +354,8 @@ describe('HistoryTimeline connected lessons and links', () => {
 
     await user.click(getMarker('The electron'))
 
-    expect(screen.getByRole('link', { name: 'Electric Charge' })).toHaveAttribute('href', '/journey/concept-001')
-    expect(screen.getByRole('link', { name: 'Electric Current' })).toHaveAttribute('href', '/journey/concept-002')
+    expect(screen.getByRole('link', { name: 'Start lesson: Electric Charge' })).toHaveAttribute('href', '/journey/concept-001')
+    expect(screen.getByRole('link', { name: 'Start lesson: Electric Current' })).toHaveAttribute('href', '/journey/concept-002')
     expect(screen.getByText(/Electrons are the particles that move through wires/)).toBeInTheDocument()
   })
 
@@ -363,7 +363,7 @@ describe('HistoryTimeline connected lessons and links', () => {
     renderAt('/history#du-fay-two-kinds')
 
     expect(await screen.findByRole('heading', { level: 3, name: 'Two kinds of electricity' })).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Electric Charge' })).toHaveAttribute('href', '/journey/concept-001')
+    expect(screen.getByRole('link', { name: 'Start lesson: Electric Charge' })).toHaveAttribute('href', '/journey/concept-001')
   })
 
   it('falls back to the first milestone when the hash names no milestone', async () => {
@@ -386,15 +386,15 @@ describe('HistoryTimeline Electricity at Home connections', () => {
     renderTimeline()
 
     await user.click(getMarker('Faraday'))
-    expect(screen.getByRole('link', { name: 'Home Electricity' })).toHaveAttribute('href', '/journey/modern-001')
+    expect(screen.getByRole('link', { name: 'Start lesson: Home Electricity' })).toHaveAttribute('href', '/journey/modern-001')
     expect(screen.getByText(/Power plants still use it by spinning magnets/)).toBeInTheDocument()
 
     await user.click(getMarker('Tesla'))
-    expect(screen.getByRole('link', { name: 'Home Electricity' })).toHaveAttribute('href', '/journey/modern-001')
+    expect(screen.getByRole('link', { name: 'Start lesson: Home Electricity' })).toHaveAttribute('href', '/journey/modern-001')
     expect(screen.getByText(/transformers and wall outlets use AC/)).toBeInTheDocument()
 
     await user.click(getMarker('Edison'))
-    expect(screen.getByRole('link', { name: 'Home Electricity' })).toHaveAttribute('href', '/journey/modern-001')
+    expect(screen.getByRole('link', { name: 'Start lesson: Home Electricity' })).toHaveAttribute('href', '/journey/modern-001')
     expect(screen.getByText(/compares early lamps with LEDs/)).toBeInTheDocument()
   })
 
@@ -404,7 +404,99 @@ describe('HistoryTimeline Electricity at Home connections', () => {
 
     await user.click(getMarker('Thales'))
 
-    expect(screen.queryByRole('link', { name: 'Home Electricity' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: /Home Electricity/ })).not.toBeInTheDocument()
+  })
+})
+
+describe('HistoryTimeline related lesson buttons', () => {
+  function LocationProbe() {
+    const location = useLocation()
+    return <p>Now at {location.pathname}</p>
+  }
+
+  function renderWithRoutes() {
+    return render(
+      <MemoryRouter initialEntries={['/history']}>
+        <Routes>
+          <Route path="/history" element={<HistoryTimeline milestones={timelineMilestones} />} />
+          <Route path="/journey/:lessonId" element={<LocationProbe />} />
+        </Routes>
+      </MemoryRouter>,
+    )
+  }
+
+  it('shows each connected lesson as the same styled lesson button used for the main lesson', async () => {
+    const user = userEvent.setup()
+    renderTimeline()
+
+    await user.click(getMarker('The electron'))
+
+    const button = screen.getByRole('link', { name: 'Start lesson: Electric Charge' })
+    expect(button).toHaveClass('btn', 'btn-primary')
+    expect(screen.getByRole('link', { name: 'Start lesson: Electric Current' })).toHaveClass('btn', 'btn-primary')
+  })
+
+  it('keeps each note as plain text, outside the lesson button', async () => {
+    const user = userEvent.setup()
+    renderTimeline()
+
+    await user.click(getMarker('The electron'))
+
+    const note = screen.getByText(/Thomson found tiny negative particles/)
+    expect(note.closest('a')).toBeNull()
+    expect(note.closest('.timeline-related-item')).not.toBeNull()
+  })
+
+  it('gives every button on a milestone a different accessible name', async () => {
+    const user = userEvent.setup()
+    renderTimeline()
+
+    await user.click(getMarker('The electron'))
+
+    const names = screen.getAllByRole('link').map((link) => link.getAttribute('aria-label'))
+    expect(new Set(names.filter(Boolean)).size).toBe(names.filter(Boolean).length)
+    expect(names).toEqual(expect.arrayContaining(['Start lesson: Electric Charge', 'Start lesson: Electric Current']))
+  })
+
+  it('navigates to the chosen lesson when its button is clicked', async () => {
+    const user = userEvent.setup()
+    renderWithRoutes()
+
+    await user.click(getMarker('The electron'))
+    await user.click(await screen.findByRole('link', { name: 'Start lesson: Electric Current' }))
+
+    expect(screen.getByText('Now at /journey/concept-002')).toBeInTheDocument()
+  })
+
+  it('navigates to a related lesson from the keyboard with Enter', async () => {
+    const user = userEvent.setup()
+    renderWithRoutes()
+
+    await user.click(getMarker('Gilbert names'))
+    const button = await screen.findByRole('link', { name: 'Start lesson: Electricity Mysteries' })
+    button.focus()
+    expect(button).toHaveFocus()
+    await user.keyboard('{Enter}')
+
+    expect(screen.getByText('Now at /journey/history-001')).toBeInTheDocument()
+  })
+
+  it('points every related lesson button at its own lesson route', async () => {
+    const user = userEvent.setup()
+    renderTimeline()
+
+    for (const milestone of timelineMilestones) {
+      const playable = playableLessonsForMilestone(milestone)
+      if (playable.length === 0) continue
+
+      await user.click(getMarker(milestone.shortName))
+      for (const lesson of playable) {
+        expect(screen.getByRole('link', { name: `Start lesson: ${lesson.title}` })).toHaveAttribute(
+          'href',
+          `/journey/${lesson.lessonId}`,
+        )
+      }
+    }
   })
 })
 

@@ -288,5 +288,6 @@ describe('LearningJourney Circuit Lab card', () => {
 
     expect(screen.getByText('Want to experiment?')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Open the Circuit Lab' })).toHaveAttribute('href', '/circuit-lab')
+    expect(screen.getByRole('link', { name: 'Open the Circuit Lab' })).toHaveClass('btn', 'btn-primary')
   })
 })

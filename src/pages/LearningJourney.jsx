@@ -202,7 +202,7 @@ function LearningJourney() {
         <p className="journey-lab-text">
           Build circuits with a battery, a switch, and bulbs in the Virtual Circuit Lab.
         </p>
-        <Link className="btn btn-secondary" to="/circuit-lab">
+        <Link className="btn btn-primary" to="/circuit-lab">
           Open the Circuit Lab
         </Link>
       </aside>

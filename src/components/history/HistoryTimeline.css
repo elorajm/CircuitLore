@@ -401,3 +401,44 @@
   margin: 0.1rem 0 0;
   line-height: 1.6;
 }
+
+/* Each connected lesson has its title, its note, and the same lesson button used for the main lesson */
+.timeline-related-item {
+  display: grid;
+  gap: 0.35rem;
+  justify-items: start;
+  padding-top: var(--space-xs);
+  border-top: 1px dashed var(--cream-200);
+}
+
+.timeline-related-item:first-child {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.timeline-related-title {
+  margin: 0;
+  font-weight: 700;
+}
+
+.timeline-related-note {
+  margin: 0;
+  line-height: 1.6;
+}
+
+.timeline-related .btn {
+  max-width: 100%;
+  text-align: center;
+}
+
+.timeline-related .btn:focus-visible {
+  outline: 3px solid var(--navy-900);
+  outline-offset: 3px;
+}
+
+@media (max-width: 540px) {
+  .timeline-related-item .timeline-lesson-link,
+  .timeline-related .btn {
+    width: 100%;
+  }
+}
