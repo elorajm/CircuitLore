@@ -490,8 +490,9 @@ describe('Electric Charge lesson (concept-001) progress', () => {
     return { lesson_id: CONCEPT_ID, status, attempts_count: 1, completed_at: null, metadata, ...extra }
   }
 
+  // Example fieldsets are named by their numbered legends, so the history panel's details group is skipped
   function exampleGroups() {
-    return screen.getAllByRole('group')
+    return screen.getAllByRole('group', { name: /^\d\. / })
   }
 
   beforeEach(() => {
@@ -732,5 +733,69 @@ describe('lesson pages connect to the historical timeline', () => {
     )
     expect(within(panel).getByRole('link', { name: 'Back to the timeline' })).toHaveAttribute('href', '/history')
     expect(await screen.findByRole('button', { name: 'Begin' })).toBeInTheDocument()
+  })
+})
+
+describe('lesson page flow between steps', () => {
+  beforeEach(() => {
+    getLessonProgressMock.mockReset()
+  })
+
+  it('introduces the activity as Quill’s challenge and the quiz as a quick check', async () => {
+    getLessonProgressMock.mockResolvedValue({
+      lesson_id: 'concept-001',
+      status: 'in_progress',
+      attempts_count: 1,
+      completed_at: null,
+      metadata: { step: 4, quizScore: null, activityDone: false },
+    })
+    renderLesson('/journey/concept-001')
+
+    expect(await screen.findByText('Quill’s challenge')).toBeInTheDocument()
+    expect(screen.getByText(/Read each example/)).toBeInTheDocument()
+  })
+
+  it('leads a completed Electricity Mysteries review into Electric Charge', async () => {
+    const user = userEvent.setup()
+    getLessonProgressMock.mockResolvedValue({
+      lesson_id: 'history-001',
+      status: 'completed',
+      attempts_count: 1,
+      completed_at: '2026-10-15T11:00:00.000Z',
+      metadata: { step: 5, quizScore: 3, activityDone: true },
+    })
+    renderLesson('/journey/history-001')
+
+    expect(await screen.findByText(/Review mode/)).toBeInTheDocument()
+    for (let count = 0; count < 5; count += 1) {
+      await user.click(screen.getByRole('button', { name: 'Next' }))
+    }
+
+    expect(await screen.findByRole('link', { name: 'Continue to Electric Charge' })).toHaveAttribute(
+      'href',
+      '/journey/concept-001',
+    )
+    expect(saveProgressMock).not.toHaveBeenCalled()
+  })
+
+  it('shows no next lesson after the last playable lesson', async () => {
+    const user = userEvent.setup()
+    getLessonProgressMock.mockResolvedValue({
+      lesson_id: 'concept-002',
+      status: 'completed',
+      attempts_count: 1,
+      completed_at: '2026-11-01T11:00:00.000Z',
+      metadata: { step: 5, quizScore: 3, activityDone: true },
+    })
+    renderLesson('/journey/concept-002')
+
+    expect(await screen.findByText(/Review mode/)).toBeInTheDocument()
+    for (let count = 0; count < 5; count += 1) {
+      await user.click(screen.getByRole('button', { name: 'Next' }))
+    }
+
+    expect(await screen.findByRole('heading', { level: 2, name: 'Congratulations!' })).toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: /Continue to/ })).not.toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Return to Learning Journey' })).toBeInTheDocument()
   })
 })

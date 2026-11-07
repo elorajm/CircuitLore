@@ -82,3 +82,21 @@
   background: radial-gradient(circle, #fff6c2, var(--gold-400));
   box-shadow: 0 0 18px 4px rgba(245, 197, 66, 0.6);
 }
+
+/* The battery label runs up the side so it fits the narrow battery block on phones */
+.loop-battery {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  letter-spacing: 0.1em;
+}
+
+@media (max-width: 480px) {
+  .loop-board {
+    height: 170px;
+  }
+
+  .loop-battery,
+  .loop-bulb {
+    font-size: 0.65rem;
+  }
+}

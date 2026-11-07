@@ -393,24 +393,52 @@
 }
 
 .lesson-history {
-  display: grid;
-  gap: var(--space-sm);
-  justify-items: start;
-  padding: var(--space-sm) var(--space-md);
+  padding: 0 var(--space-md);
   border-left: 5px solid var(--color-accent-gold);
   border-radius: var(--radius-md);
   background: var(--color-surface);
 }
 
-.lesson-history-title {
-  margin: 0;
-  font-size: 1rem;
+.lesson-history-details {
+  padding: var(--space-xs) 0;
+}
+
+.lesson-history-details[open] {
+  padding-bottom: var(--space-sm);
+}
+
+.lesson-history-summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.25rem 1rem;
+  padding: var(--space-xs) 0;
+  cursor: pointer;
+  color: var(--navy-800);
+  font-weight: 700;
+}
+
+.lesson-history-summary:focus-visible {
+  outline: 3px solid var(--navy-900);
+  outline-offset: 3px;
+}
+
+.lesson-history-count {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.lesson-history-details[open] .lesson-history-list,
+.lesson-history-details[open] .btn {
+  margin-top: var(--space-xs);
 }
 
 .lesson-history-list {
   display: grid;
   gap: var(--space-xs);
-  margin: 0;
+  margin: 0 0 var(--space-sm);
   padding: 0;
   list-style: none;
 }
@@ -418,4 +446,51 @@
 .lesson-history-list p {
   margin: 0.1rem 0 0;
   line-height: 1.6;
+}
+
+.lesson-callout {
+  display: grid;
+  gap: 0.3rem;
+  padding: var(--space-sm) var(--space-md);
+  border-left: 5px solid var(--gold-500);
+  border-radius: var(--radius-md);
+  background: var(--cream-100);
+}
+
+.lesson-callout-label {
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted);
+}
+
+.lesson-callout-text {
+  margin: 0;
+  line-height: 1.6;
+}
+
+.lesson-complete-next {
+  display: grid;
+  justify-items: center;
+  gap: 0.4rem;
+}
+
+.lesson-complete-next-label {
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted);
+}
+
+/* On narrow screens the step buttons share rows instead of crowding one line */
+@media (max-width: 540px) {
+  .lesson-nav .btn,
+  .lesson-quiz-actions .btn {
+    flex: 1 1 9rem;
+    text-align: center;
+  }
 }

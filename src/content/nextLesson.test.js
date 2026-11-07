@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { chooseNextLessonId } from './nextLesson.js'
+import { chooseNextLessonId, nextPlayableLesson } from './nextLesson.js'
 
 const first = { id: 'history-001', order: 1 }
 const second = { id: 'concept-001', order: 8 }
@@ -51,5 +51,31 @@ describe('chooseNextLessonId', () => {
 
   it('returns null when no lesson is playable', () => {
     expect(chooseNextLessonId([], [])).toBeNull()
+  })
+})
+
+describe('nextPlayableLesson', () => {
+  const lessons = [
+    { id: 'history-001', order: 1 },
+    { id: 'concept-001', order: 8 },
+    { id: 'concept-002', order: 9 },
+  ]
+
+  it('leads from one playable lesson to the next in curriculum order', () => {
+    expect(nextPlayableLesson('history-001', lessons)?.id).toBe('concept-001')
+    expect(nextPlayableLesson('concept-001', lessons)?.id).toBe('concept-002')
+  })
+
+  it('returns null after the last playable lesson', () => {
+    expect(nextPlayableLesson('concept-002', lessons)).toBeNull()
+  })
+
+  it('returns null for a lesson that is not in the playable list', () => {
+    expect(nextPlayableLesson('history-999', lessons)).toBeNull()
+  })
+
+  it('uses the real playable lessons by default: Electricity Mysteries leads to Electric Charge', () => {
+    expect(nextPlayableLesson('history-001')?.id).toBe('concept-001')
+    expect(nextPlayableLesson('concept-002')).toBeNull()
   })
 })

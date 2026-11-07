@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { TrophyIcon } from '../icons.jsx'
 import './Lesson.css'
 
-function LessonComplete({ lessonTitle, quizScore, totalQuestions }) {
+function LessonComplete({ lessonTitle, quizScore, totalQuestions, nextLesson }) {
   return (
     <section className="lesson-complete">
       <div className="lesson-complete-icon" aria-hidden="true">
@@ -25,7 +25,16 @@ function LessonComplete({ lessonTitle, quizScore, totalQuestions }) {
         Your progress has been saved.
       </p>
 
-      <Link className="btn btn-primary" to="/journey">
+      {nextLesson && (
+        <div className="lesson-complete-next">
+          <p className="lesson-complete-next-label">Up next</p>
+          <Link className="btn btn-primary" to={`/journey/${nextLesson.id}`}>
+            Continue to {nextLesson.title}
+          </Link>
+        </div>
+      )}
+
+      <Link className={nextLesson ? "btn btn-secondary" : "btn btn-primary"} to="/journey">
         Return to Learning Journey
       </Link>
     </section>

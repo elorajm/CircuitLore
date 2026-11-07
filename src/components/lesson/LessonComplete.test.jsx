@@ -37,3 +37,23 @@ describe('LessonComplete', () => {
     expect(screen.getByRole('heading', { level: 2, name: 'Congratulations!' })).toBeInTheDocument()
   })
 })
+
+describe('LessonComplete next lesson', () => {
+  it('leads into the next lesson first, with the journey as a secondary way back', () => {
+    renderComplete({ quizScore: 3, nextLesson: { id: 'concept-001', title: 'Electric Charge' } })
+
+    expect(screen.getByText('Up next')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Continue to Electric Charge' })).toHaveAttribute(
+      'href',
+      '/journey/concept-001',
+    )
+    expect(screen.getByRole('link', { name: 'Return to Learning Journey' })).toHaveClass('btn-secondary')
+  })
+
+  it('offers only the journey link when there is no next lesson', () => {
+    renderComplete({ quizScore: 3, nextLesson: null })
+
+    expect(screen.queryByText('Up next')).not.toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Return to Learning Journey' })).toHaveClass('btn-primary')
+  })
+})

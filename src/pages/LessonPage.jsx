@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom'
 import LESSONS from '../constants/lessons.js'
 import lessonContent from '../content/lessonContent.js'
 import { useLessonProgress } from '../hooks/useLessonProgress.js'
+import { nextPlayableLesson } from '../content/nextLesson.js'
 import {
   getLessonProgress,
   resetProgress,
@@ -48,12 +49,13 @@ function LessonPage() {
         lessonId={lesson.id}
         lessonTitle={lesson.title}
         steps={content.steps}
+        nextLesson={nextPlayableLesson(lesson.id)}
       />
     </LessonFrame>
   )
 }
 
-function LoadedLesson({ lessonId, lessonTitle, steps }) {
+function LoadedLesson({ lessonId, lessonTitle, steps, nextLesson }) {
   const {
     loadStatus,
     record,
@@ -148,6 +150,7 @@ function LoadedLesson({ lessonId, lessonTitle, steps }) {
         key={`${lessonId}-${sessionVersion}`}
         lessonTitle={lessonTitle}
         steps={steps}
+        nextLesson={nextLesson}
         record={record}
         saveState={saveState}
         persist={persistUnlessResetting}

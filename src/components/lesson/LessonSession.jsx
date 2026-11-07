@@ -7,6 +7,7 @@ import StaticOrCurrentActivity from './StaticOrCurrentActivity.jsx'
 import BuildTheLoopActivity from './BuildTheLoopActivity.jsx'
 import KnowledgeCheck from './KnowledgeCheck.jsx'
 import LessonComplete from './LessonComplete.jsx'
+import LessonCallout from './LessonCallout.jsx'
 import './Lesson.css'
 
 // Each activity step names its component with activityId, so lessons can use different activities
@@ -29,7 +30,7 @@ function buildMetadata(step, quizScore, activityDone) {
   return { step, quizScore, activityDone }
 }
 
-function LessonSession({ lessonTitle, steps, record, saveState, persist, retrySave }) {
+function LessonSession({ lessonTitle, steps, record, saveState, persist, retrySave, nextLesson }) {
   const lastIndex = steps.length - 1
   const isReview = record?.status === 'completed'
   const started = record?.status === 'in_progress' || isReview
@@ -97,6 +98,7 @@ function LessonSession({ lessonTitle, steps, record, saveState, persist, retrySa
           lessonTitle={lessonTitle}
           quizScore={quizScore}
           totalQuestions={quizQuestionCount}
+          nextLesson={nextLesson}
         />
       ) : (
         <>
@@ -120,14 +122,14 @@ function LessonSession({ lessonTitle, steps, record, saveState, persist, retrySa
 
           {step.type === 'activity' && (
             <>
-              <p className="lesson-intro">{step.intro}</p>
+              <LessonCallout label="Quill’s challenge">{step.intro}</LessonCallout>
               <ActivityComponent onCompleted={() => setActivityDone(true)} />
             </>
           )}
 
           {step.type === 'quiz' && (
             <>
-              <p className="lesson-intro">{step.intro}</p>
+              <LessonCallout label="Quill’s quick check">{step.intro}</LessonCallout>
               <KnowledgeCheck questions={step.questions} onChecked={submitQuiz} />
             </>
           )}
