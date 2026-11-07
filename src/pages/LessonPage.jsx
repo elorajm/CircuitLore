@@ -106,6 +106,13 @@ function LoadedLesson({ lessonId, lessonTitle, steps }) {
     }
   }
 
+  // A save that lands after the reset would make the verification step report a false failure,
+  // so lesson saves are refused until the reset finishes.
+  function persistUnlessResetting(status, metadata, onSaved) {
+    if (resetting) return Promise.resolve(false)
+    return persist(status, metadata, onSaved)
+  }
+
   if (loadStatus === 'loading') {
     return (
       <p className="loading-message">
@@ -141,7 +148,7 @@ function LoadedLesson({ lessonId, lessonTitle, steps }) {
         steps={steps}
         record={record}
         saveState={saveState}
-        persist={persist}
+        persist={persistUnlessResetting}
         retrySave={retrySave}
       />
 

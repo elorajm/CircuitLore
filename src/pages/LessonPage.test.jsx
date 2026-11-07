@@ -1,17 +1,26 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, within } from '@testing-library/react'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { render, screen, within, act } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Routes, Route } from 'react-router-dom'
 import LessonPage from './LessonPage.jsx'
 
-const { saveProgressMock, getLessonProgressMock } = vi.hoisted(() => ({
+const {
+  saveProgressMock,
+  getLessonProgressMock,
+  resetProgressMock,
+  permanentlyDeleteAllProgressMock,
+} = vi.hoisted(() => ({
   saveProgressMock: vi.fn(),
   getLessonProgressMock: vi.fn(),
+  resetProgressMock: vi.fn(),
+  permanentlyDeleteAllProgressMock: vi.fn(),
 }))
 
 vi.mock('../services/progressService.js', () => ({
   saveProgress: saveProgressMock,
   getLessonProgress: getLessonProgressMock,
+  resetProgress: resetProgressMock,
+  permanentlyDeleteAllProgress: permanentlyDeleteAllProgressMock,
 }))
 
 function record(status, metadata, extra = {}) {
@@ -264,5 +273,210 @@ describe('LessonPage', () => {
 
     expect(await screen.findByRole('button', { name: 'Begin' })).toBeInTheDocument()
     expect(getLessonProgressMock).toHaveBeenCalledTimes(2)
+  })
+
+  describe('reset lesson progress', () => {
+    const RESET_LABEL = 'Reset Lesson Progress'
+    const inProgressRecord = record('in_progress', { step: 1, quizScore: null, activityDone: false })
+    const completedRecord = record('completed', { step: 5, quizScore: 3, activityDone: true })
+    const notStartedRecord = record('not_started', {})
+
+    let confirmSpy
+
+    beforeEach(() => {
+      resetProgressMock.mockReset()
+      saveProgressMock.mockReset()
+      getLessonProgressMock.mockReset()
+      confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true)
+    })
+
+    afterEach(() => {
+      confirmSpy.mockRestore()
+    })
+
+    it.each([
+      ['in progress', inProgressRecord],
+      ['completed', completedRecord],
+    ])('shows the reset button when the lesson is %s', async (_label, savedRecord) => {
+      getLessonProgressMock.mockResolvedValue(savedRecord)
+      renderLesson()
+
+      expect(await screen.findByRole('button', { name: RESET_LABEL })).toBeInTheDocument()
+    })
+
+    it.each([
+      ['has no saved row', null],
+      ['was reset to not started', notStartedRecord],
+    ])('hides the reset button when the lesson %s', async (_label, savedRecord) => {
+      getLessonProgressMock.mockResolvedValue(savedRecord)
+      renderLesson()
+
+      expect(await screen.findByRole('button', { name: 'Begin' })).toBeInTheDocument()
+      expect(screen.queryByRole('button', { name: RESET_LABEL })).not.toBeInTheDocument()
+    })
+
+    it('does nothing when the confirmation is canceled', async () => {
+      const user = userEvent.setup()
+      confirmSpy.mockReturnValue(false)
+      getLessonProgressMock.mockResolvedValue(inProgressRecord)
+      renderLesson()
+
+      await user.click(await screen.findByRole('button', { name: RESET_LABEL }))
+
+      expect(confirmSpy).toHaveBeenCalledTimes(1)
+      expect(resetProgressMock).not.toHaveBeenCalled()
+      expect(getLessonProgressMock).toHaveBeenCalledTimes(1)
+      expect(screen.getByText('Step 2 of 6: Thales and amber')).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: RESET_LABEL })).toBeEnabled()
+      expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+    })
+
+    it('resets only the lesson on this page and never deletes the student account', async () => {
+      const user = userEvent.setup()
+      getLessonProgressMock
+        .mockResolvedValueOnce(inProgressRecord)
+        .mockResolvedValue(notStartedRecord)
+      resetProgressMock.mockResolvedValue({ success: true, message: 'Progress reset for lesson history-001' })
+      renderLesson()
+
+      await user.click(await screen.findByRole('button', { name: RESET_LABEL }))
+
+      expect(confirmSpy).toHaveBeenCalledTimes(1)
+      expect(resetProgressMock).toHaveBeenCalledTimes(1)
+      expect(resetProgressMock).toHaveBeenCalledWith('history-001')
+      expect(permanentlyDeleteAllProgressMock).not.toHaveBeenCalled()
+      expect(saveProgressMock).not.toHaveBeenCalled()
+      expect(await screen.findByRole('button', { name: 'Begin' })).toBeInTheDocument()
+    })
+
+    it('returns the lesson to Not Started at Step 1 after a successful reset', async () => {
+      const user = userEvent.setup()
+      getLessonProgressMock
+        .mockResolvedValueOnce(inProgressRecord)
+        .mockResolvedValue(notStartedRecord)
+      resetProgressMock.mockResolvedValue({ success: true, message: 'Progress reset for lesson history-001' })
+      renderLesson()
+
+      await user.click(await screen.findByRole('button', { name: RESET_LABEL }))
+
+      expect(await screen.findByRole('button', { name: 'Begin' })).toBeInTheDocument()
+      expect(screen.getByText('Step 1 of 6: Welcome')).toBeInTheDocument()
+      expect(screen.queryByRole('button', { name: RESET_LABEL })).not.toBeInTheDocument()
+      expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+      // Initial load, verification read, and the reload after the reset.
+      expect(getLessonProgressMock).toHaveBeenCalledTimes(3)
+    })
+
+    it.each([
+      [
+        'the reset request fails',
+        () => {
+          resetProgressMock.mockRejectedValue(new Error('Failed to reset progress: offline'))
+          getLessonProgressMock.mockResolvedValue(inProgressRecord)
+        },
+      ],
+      [
+        'the database still reports the lesson as in progress',
+        () => {
+          resetProgressMock.mockResolvedValue({ success: true })
+          getLessonProgressMock.mockResolvedValue(inProgressRecord)
+        },
+      ],
+      [
+        'the verification read fails',
+        () => {
+          resetProgressMock.mockResolvedValue({ success: true })
+          getLessonProgressMock
+            .mockResolvedValueOnce(inProgressRecord)
+            .mockRejectedValueOnce(new Error('Failed to fetch lesson progress: boom'))
+        },
+      ],
+    ])('shows a helpful error and keeps the student in place when %s', async (_label, setup) => {
+      const user = userEvent.setup()
+      setup()
+      renderLesson()
+
+      await user.click(await screen.findByRole('button', { name: RESET_LABEL }))
+
+      expect(await screen.findByRole('alert')).toHaveTextContent(
+        'We could not reset your lesson progress. Please try again.',
+      )
+      expect(screen.getByText('Step 2 of 6: Thales and amber')).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: RESET_LABEL })).toBeEnabled()
+    })
+
+    it('ignores repeated clicks while a reset is running', async () => {
+      const user = userEvent.setup()
+      let finishReset
+      resetProgressMock.mockReturnValue(
+        new Promise((resolve) => {
+          finishReset = resolve
+        }),
+      )
+      getLessonProgressMock
+        .mockResolvedValueOnce(inProgressRecord)
+        .mockResolvedValue(notStartedRecord)
+      renderLesson()
+
+      await user.click(await screen.findByRole('button', { name: RESET_LABEL }))
+      const resetting = await screen.findByRole('button', { name: 'Resetting...' })
+      expect(resetting).toBeDisabled()
+      await user.click(resetting)
+
+      expect(confirmSpy).toHaveBeenCalledTimes(1)
+      expect(resetProgressMock).toHaveBeenCalledTimes(1)
+
+      await act(async () => finishReset({ success: true }))
+
+      expect(await screen.findByRole('button', { name: 'Begin' })).toBeInTheDocument()
+    })
+
+    it('disables the reset button while a progress save is in progress', async () => {
+      const user = userEvent.setup()
+      let finishSave
+      saveProgressMock.mockReturnValue(
+        new Promise((resolve) => {
+          finishSave = resolve
+        }),
+      )
+      getLessonProgressMock.mockResolvedValue(inProgressRecord)
+      renderLesson()
+
+      await user.click(await screen.findByRole('button', { name: 'Next' }))
+
+      const resetButton = screen.getByRole('button', { name: RESET_LABEL })
+      expect(resetButton).toBeDisabled()
+      await user.click(resetButton)
+      expect(confirmSpy).not.toHaveBeenCalled()
+      expect(resetProgressMock).not.toHaveBeenCalled()
+
+      await act(async () => finishSave(record('in_progress', { step: 2, quizScore: null, activityDone: false })))
+
+      expect(await screen.findByRole('button', { name: RESET_LABEL })).toBeEnabled()
+    })
+
+    it('does not let a lesson save start while a reset is running', async () => {
+      const user = userEvent.setup()
+      let finishReset
+      resetProgressMock.mockReturnValue(
+        new Promise((resolve) => {
+          finishReset = resolve
+        }),
+      )
+      getLessonProgressMock
+        .mockResolvedValueOnce(inProgressRecord)
+        .mockResolvedValue(notStartedRecord)
+      renderLesson()
+
+      await user.click(await screen.findByRole('button', { name: RESET_LABEL }))
+      await user.click(screen.getByRole('button', { name: 'Next' }))
+
+      expect(saveProgressMock).not.toHaveBeenCalled()
+
+      await act(async () => finishReset({ success: true }))
+
+      expect(await screen.findByRole('button', { name: 'Begin' })).toBeInTheDocument()
+      expect(saveProgressMock).not.toHaveBeenCalled()
+    })
   })
 })
