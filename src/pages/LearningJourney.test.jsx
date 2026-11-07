@@ -1,3 +1,6 @@
+/* global process */
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
@@ -289,5 +292,39 @@ describe('LearningJourney Circuit Lab card', () => {
     expect(screen.getByText('Want to experiment?')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Open the Circuit Lab' })).toHaveAttribute('href', '/circuit-lab')
     expect(screen.getByRole('link', { name: 'Open the Circuit Lab' })).toHaveClass('btn', 'btn-primary')
+  })
+})
+
+// Vitest does not return CSS file text, so the stylesheet is read from disk
+function journeyCss() {
+  const css = readFileSync(resolve(process.cwd(), 'src/pages/LearningJourney.css'), 'utf8')
+  expect(css.length).toBeGreaterThan(1000)
+  return css
+}
+
+describe('LearningJourney Circuit Lab button styling', () => {
+  // Reads the stylesheet as text, so the test checks the real CSS rules rather than class names alone
+  it('styles the lab button as a navy button with white text, scoped to the lab card', async () => {
+    const css = journeyCss()
+
+    expect(css).toMatch(/\.journey-lab \.btn-primary \{[^}]*background-color: var\(--navy-800\)/)
+    expect(css).toMatch(/\.journey-lab \.btn-primary \{[^}]*color: #ffffff/)
+    expect(css).toMatch(/\.journey-lab \.btn-primary:hover \{[^}]*background-color: var\(--navy-700\)/)
+    expect(css).toMatch(/\.journey-lab \.btn-primary:focus-visible \{/)
+  })
+
+  it('does not restyle the shared button classes outside the lab card', async () => {
+    const css = journeyCss()
+    const selectors = [...css.matchAll(/^([^\n{}]+)\{/gm)].map((match) => match[1].trim())
+
+    expect(selectors.filter((selector) => /(^|\s|,)\.btn(-primary|-secondary)?(\s|:|,|$)/.test(selector) && !selector.startsWith('.journey-lab'))).toEqual([])
+  })
+
+  it('keeps the lab link pointing at the Circuit Lab', async () => {
+    renderJourney()
+
+    const link = screen.getByRole('link', { name: 'Open the Circuit Lab' })
+    expect(link).toHaveClass('btn', 'btn-primary')
+    expect(link).toHaveAttribute('href', '/circuit-lab')
   })
 })

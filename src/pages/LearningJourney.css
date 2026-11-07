@@ -370,8 +370,32 @@
   line-height: 1.6;
 }
 
-/* The lab button sits on a white card, so it uses the gold primary style with a strong focus ring */
-.journey-lab .btn:focus-visible {
-  outline: 3px solid var(--navy-900);
+/* The Circuit Lab button on this card is a solid navy button with white text. These rules are scoped
+   to .journey-lab so no other button changes. Each state selector is more specific than the shared
+   .btn-primary rules, so the colors win in normal, hover, focus, and pressed states. */
+.journey-lab .btn-primary {
+  min-height: 44px;
+  padding: 0.95rem 1.75rem;
+  border: 2px solid var(--navy-900);
+  border-radius: var(--radius-md);
+  background-color: var(--navy-800);
+  color: #ffffff;
+  box-shadow: var(--shadow-card);
+}
+
+.journey-lab .btn-primary:hover {
+  background-color: var(--navy-700);
+  color: #ffffff;
+  box-shadow: var(--shadow-card-hover);
+}
+
+.journey-lab .btn-primary:active {
+  background-color: var(--navy-900);
+  color: #ffffff;
+}
+
+.journey-lab .btn-primary:focus-visible {
+  outline: 3px solid var(--gold-500);
   outline-offset: 3px;
+  color: #ffffff;
 }
