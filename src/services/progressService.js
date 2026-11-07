@@ -155,8 +155,21 @@ export async function saveProgress(lessonId, status = 'in_progress', metadata) {
     throw new Error('lessonId must be a non-empty string')
   }
 
+  let previous = null
+
   for (let attempt = 0; attempt < MAX_SAVE_ATTEMPTS; attempt += 1) {
     const existing = await fetchLessonRow(studentId, lessonId)
+
+    // An active row that is now not_started or gone was reset or deleted in another window.
+    // Retrying would write this save over that reset, so stop and report the save as not applied.
+    if (previous && previous.status !== 'not_started' && (!existing || existing.status === 'not_started')) {
+      throw new Error(
+        'Failed to save progress: the lesson was reset while this save was running, so it was not applied.'
+      )
+    }
+
+    previous = existing
+
     const fields = buildProgressFields(existing, status, metadata)
     const saved = existing
       ? await updateProgress(studentId, lessonId, existing, fields)

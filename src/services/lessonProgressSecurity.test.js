@@ -186,9 +186,8 @@ describe('progressService writes stay inside the granted columns', () => {
     expect(callsOf(queries[0], 'eq')).toEqual([['eq', 'student_id', MOCK_USER_ID]])
   })
 
-  // Known gap, not covered by a passing test. saveProgress retries after a compare-and-set
-  // conflict by re-reading the row and writing its own intended state, so a save that was
-  // already running in another tab can still overwrite a reset. Closing it needs a database-side
-  // guard (for example a version column checked in the same write), which is a migration.
-  it.todo('a save that is already in flight in another tab cannot overwrite a completed reset')
+  // Known gap, not covered by a passing test. An in-flight save that loses a race to a reset now
+  // stops (see progressService.test.js). A stale tab that saves after a reset still writes, because
+  // the save reads the reset row as its starting point. Closing that needs a database version check.
+  it.todo('a stale tab cannot save over a reset it has not seen')
 })

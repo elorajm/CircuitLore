@@ -316,6 +316,31 @@ describe('progressService', () => {
         expect(callsOf(queries[3], 'update')).toHaveLength(1)
       })
 
+      it('stops instead of writing over a reset that happened during the save', async () => {
+        const active = progressRow({ status: 'in_progress', attempts_count: 1 })
+        const reset = progressRow({ status: 'not_started', attempts_count: 1, metadata: {} })
+        const queries = queueQueries(foundRow(active), noUpdatedRow, foundRow(reset))
+
+        await expect(progressService.saveProgress(LESSON_ID, 'in_progress', { step: 3 })).rejects.toThrow(
+          'reset while this save was running',
+        )
+
+        expect(queries).toHaveLength(3)
+        expect(callsOf(queries[2], 'update')).toHaveLength(0)
+      })
+
+      it('does not recreate a row that was deleted during the save', async () => {
+        const active = progressRow({ status: 'in_progress', attempts_count: 1 })
+        const queries = queueQueries(foundRow(active), noUpdatedRow, noRow)
+
+        await expect(progressService.saveProgress(LESSON_ID, 'in_progress', {})).rejects.toThrow(
+          'reset while this save was running',
+        )
+
+        expect(queries).toHaveLength(3)
+        expect(callsOf(queries[2], 'insert')).toHaveLength(0)
+      })
+
       it('throws a clear error after repeated conflicts', async () => {
         const row = progressRow({ attempts_count: 1 })
         queueQueries(

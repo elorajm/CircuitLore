@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import StudentDashboard from './StudentDashboard.jsx'
+import LESSONS from '../constants/lessons.js'
 
 const { useAuthMock, getLessonProgressMock, getProgressMock } = vi.hoisted(() => ({
   useAuthMock: vi.fn(),
@@ -142,6 +143,22 @@ describe('Progress overview', () => {
 
     expect(await screen.findByText(/You have not started any lessons yet/)).toBeInTheDocument()
     expect(screen.getByText('Lessons completed').nextElementSibling).toHaveTextContent('0')
+  })
+
+  it('shows overall journey progress as a percentage of every lesson in the curriculum', async () => {
+    getProgressMock.mockResolvedValue([record('history-001', 'completed'), record('history-002', 'in_progress')])
+    renderDashboard()
+
+    const expected = Math.round((1 / LESSONS.length) * 100)
+    expect(await screen.findByText('Journey progress')).toBeInTheDocument()
+    expect(screen.getByText('Journey progress').nextElementSibling).toHaveTextContent(`${expected}%`)
+  })
+
+  it('shows 0% journey progress when the student has no progress rows', async () => {
+    renderDashboard()
+
+    expect(await screen.findByText('Journey progress')).toBeInTheDocument()
+    expect(screen.getByText('Journey progress').nextElementSibling).toHaveTextContent('0%')
   })
 
   it('shows a loading status while the overview loads', () => {

@@ -114,7 +114,7 @@ Completed lessons remain available for review. Students can restart and complete
 - Concurrent saves do not lose an increment, because each successful write counts from the value it read. The increment is not a single `attempts_count = attempts_count + 1` expression. That would need a database function (RPC) and a migration, which are not implemented.
 - `status` and `attempts_count` are `NOT NULL`, so `.eq()` is a correct filter on them. A nullable filter column would need `.is()`, since `.eq(column, null)` matches nothing.
 - Update payloads never include `student_id` or `lesson_id`. The `authenticated` role has no UPDATE privilege on those columns, and a PostgREST upsert would put them in the `SET` list and fail. The app does not use upsert.
-- `resetProgress()` and `resetAllProgress()` are unconditional updates. A save running at the same moment as a reset may land after it.
+- `resetProgress()` and `resetAllProgress()` are unconditional updates. If a save from another tab is running when a reset lands, that save stops instead of retrying over the reset, and it reports that it was not applied. A save that starts after the reset is a new write and is applied. A stale tab that saves after a reset can still overwrite it, because the save has no version to check. Fully closing that needs a version check in the database.
 - These paths are covered by unit tests with a mocked Supabase client. The conflict-retry path has not been run against the live database. The basic save and completion path has been (see status above).
 
 ### Progress API

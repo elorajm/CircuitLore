@@ -94,6 +94,9 @@ function StudentDashboard() {
   const completedCount = overview.rows.filter(
     (row) => row.status === 'completed' && PLAYABLE_LESSON_IDS.has(row.lesson_id),
   ).length
+  // Same formula as getProgressSummary: completed lessons over every lesson in the curriculum
+  const journeyCompletedCount = overview.rows.filter((row) => row.status === 'completed').length
+  const journeyPercent = Math.round((journeyCompletedCount / LESSONS.length) * 100)
 
   return (
     <div className="dashboard-page">
@@ -174,6 +177,10 @@ function StudentDashboard() {
               <div className="dashboard-stat">
                 <dt>Lessons completed</dt>
                 <dd>{completedCount}</dd>
+              </div>
+              <div className="dashboard-stat">
+                <dt>Journey progress</dt>
+                <dd>{journeyPercent}%</dd>
               </div>
             </dl>
 
