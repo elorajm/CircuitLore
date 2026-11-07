@@ -1,0 +1,90 @@
+.lab-page {
+  width: min(1000px, 100%);
+  margin: 0 auto;
+  padding: var(--space-lg) 1rem var(--space-xl);
+  display: grid;
+  gap: var(--space-md);
+  color: var(--color-text);
+  font-family: var(--font-body);
+}
+
+.lab-page-header {
+  text-align: center;
+  display: grid;
+  gap: 0.25rem;
+  justify-items: center;
+}
+
+.lab-page-header h1 {
+  margin: 0;
+  font-family: var(--font-display);
+}
+
+.lab-eyebrow {
+  margin: 0;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.lab-intro {
+  margin: 0;
+  max-width: 40rem;
+  color: var(--color-text-muted);
+}
+
+.lab-quill {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--space-sm);
+  align-items: start;
+  padding: var(--space-sm) var(--space-md);
+  border-left: 5px solid var(--color-accent-gold);
+  border-radius: var(--radius-md);
+  background: var(--cream-100);
+}
+
+.lab-quill-icon {
+  color: var(--navy-800);
+  margin-top: 0.2rem;
+}
+
+.lab-quill-title {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.lab-quill-steps {
+  margin: 0.4rem 0 0;
+  padding-left: 1.2rem;
+  display: grid;
+  gap: 0.3rem;
+  line-height: 1.5;
+}
+
+.lab-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.6rem;
+}
+
+/* Lab buttons sit on cream and white surfaces, so they use the lesson palette */
+.lab-page .btn-primary {
+  background-color: var(--gold-500);
+  color: var(--navy-900);
+  border-color: var(--navy-900);
+}
+
+.lab-page .btn-secondary {
+  background-color: var(--color-surface);
+  color: var(--navy-800);
+  border-color: var(--navy-700);
+}
+
+.lab-page .btn:focus-visible {
+  outline: 3px solid var(--navy-900);
+  outline-offset: 3px;
+}

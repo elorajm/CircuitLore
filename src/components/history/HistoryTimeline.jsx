@@ -113,6 +113,18 @@ function RelatedLessons({ lessons }) {
   )
 }
 
+function RelatedLab({ note }) {
+  return (
+    <div className="timeline-callout timeline-related">
+      <h4>Try it yourself</h4>
+      <p>{note}</p>
+      <Link className="btn btn-secondary" to="/circuit-lab">
+        Build it in the Circuit Lab
+      </Link>
+    </div>
+  )
+}
+
 function milestoneIndexFromHash(hash, milestones) {
   const id = hash.replace('#', '')
   return milestones.findIndex((milestone) => milestone.id === id)
@@ -226,6 +238,8 @@ function HistoryTimeline({ milestones }) {
         )}
 
         {relatedLessons.length > 0 && <RelatedLessons lessons={relatedLessons} />}
+
+        {selected.circuitLab && <RelatedLab note={selected.circuitLab.note} />}
 
         <div className="timeline-notes">
           <button

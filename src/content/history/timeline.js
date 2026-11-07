@@ -292,6 +292,9 @@ const timelineMilestones = [
         note: 'Volta built a pile that gave a steady current. Electric Current shows what a complete loop needs to keep that current flowing.',
       },
     ],
+    circuitLab: {
+      note: 'Volta’s pile gave a steady current. Build your own loop with a battery, a switch, and bulbs to see what a steady source can light.',
+    },
     sources: [
       {
         label:

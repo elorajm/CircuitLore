@@ -50,12 +50,13 @@ function LessonPage() {
         lessonTitle={lesson.title}
         steps={content.steps}
         nextLesson={nextPlayableLesson(lesson.id)}
+        circuitLab={content.circuitLab}
       />
     </LessonFrame>
   )
 }
 
-function LoadedLesson({ lessonId, lessonTitle, steps, nextLesson }) {
+function LoadedLesson({ lessonId, lessonTitle, steps, nextLesson, circuitLab }) {
   const {
     loadStatus,
     record,
@@ -151,6 +152,7 @@ function LoadedLesson({ lessonId, lessonTitle, steps, nextLesson }) {
         lessonTitle={lessonTitle}
         steps={steps}
         nextLesson={nextLesson}
+        circuitLab={circuitLab}
         record={record}
         saveState={saveState}
         persist={persistUnlessResetting}

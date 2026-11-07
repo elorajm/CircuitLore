@@ -379,3 +379,24 @@ describe('HistoryTimeline connected lessons and links', () => {
     ])
   })
 })
+
+describe('HistoryTimeline links to the Circuit Lab', () => {
+  it('offers the lab from Volta’s battery, with a note about the steady current', async () => {
+    const user = userEvent.setup()
+    renderTimeline()
+
+    await user.click(getMarker('Volta'))
+
+    expect(screen.getByRole('link', { name: 'Build it in the Circuit Lab' })).toHaveAttribute('href', '/circuit-lab')
+    expect(screen.getByText(/Build your own loop with a battery, a switch, and bulbs/)).toBeInTheDocument()
+  })
+
+  it('does not offer the lab from milestones that have no lab link', async () => {
+    const user = userEvent.setup()
+    renderTimeline()
+
+    await user.click(getMarker('Testing lightning'))
+
+    expect(screen.queryByRole('link', { name: 'Build it in the Circuit Lab' })).not.toBeInTheDocument()
+  })
+})

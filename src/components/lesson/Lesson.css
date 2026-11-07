@@ -494,3 +494,9 @@
     text-align: center;
   }
 }
+
+.lesson-complete-lab-note {
+  margin: 0;
+  max-width: 34rem;
+  line-height: 1.6;
+}

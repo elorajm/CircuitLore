@@ -57,3 +57,21 @@ describe('LessonComplete next lesson', () => {
     expect(screen.getByRole('link', { name: 'Return to Learning Journey' })).toHaveClass('btn-primary')
   })
 })
+
+describe('LessonComplete circuit lab link', () => {
+  it('offers the Circuit Lab with the lesson’s own note', () => {
+    renderComplete({
+      quizScore: 3,
+      circuitLab: { note: 'Build the same loop yourself.' },
+    })
+
+    expect(screen.getByText('Build the same loop yourself.')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Open the Circuit Lab' })).toHaveAttribute('href', '/circuit-lab')
+  })
+
+  it('leaves the lab out when the lesson has none', () => {
+    renderComplete({ quizScore: 3 })
+
+    expect(screen.queryByRole('link', { name: 'Open the Circuit Lab' })).not.toBeInTheDocument()
+  })
+})

@@ -1,0 +1,354 @@
+.circuit-workspace {
+  display: grid;
+  gap: var(--space-sm);
+  padding: var(--space-md);
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  color: var(--color-text);
+}
+
+@media (min-width: 720px) {
+  .circuit-workspace {
+    padding: var(--space-lg);
+  }
+}
+
+.circuit-workspace-title,
+.circuit-wire-list-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+}
+
+/* Points on the board are percentages, so parts and wires line up at any width */
+.circuit-board {
+  position: relative;
+  width: 100%;
+  max-width: 760px;
+  aspect-ratio: 16 / 10;
+  margin: 0 auto;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--cream-200);
+  background:
+    radial-gradient(circle at 50% 0%, rgba(245, 197, 66, 0.12), transparent 60%),
+    linear-gradient(180deg, var(--cream-200), var(--cream-100));
+  overflow: hidden;
+}
+
+.circuit-wires {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.circuit-wire {
+  stroke: var(--navy-700);
+  stroke-width: 4px;
+  stroke-linecap: round;
+}
+
+/* Dashes move in the direction conventional current travels along each wire (+ toward −).
+   Dash offset shifts the pattern back toward the wire's first end, so forward runs from 24 to 0. */
+.circuit-wire.is-flowing {
+  stroke: var(--electric-blue-600);
+  stroke-dasharray: 14 10;
+}
+
+.circuit-wire.is-forward {
+  animation: circuit-flow-forward 0.9s linear infinite;
+}
+
+.circuit-wire.is-reverse {
+  animation: circuit-flow-reverse 0.9s linear infinite;
+}
+
+/* Where wires carry current both ways, the highlight stays solid rather than showing a direction */
+.circuit-wire.is-steady {
+  stroke-dasharray: none;
+}
+
+@keyframes circuit-flow-forward {
+  from {
+    stroke-dashoffset: 24;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes circuit-flow-reverse {
+  from {
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dashoffset: 24;
+  }
+}
+
+.circuit-legend {
+  display: grid;
+  gap: 0.4rem;
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-md);
+  background: var(--cream-100);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.circuit-legend p {
+  margin: 0;
+}
+
+.circuit-safety {
+  color: var(--color-error);
+}
+
+.circuit-part,
+.circuit-part-label {
+  position: absolute;
+  transform: translate(-50%, -50%);
+}
+
+.circuit-battery {
+  left: 12%;
+  top: 50%;
+  width: 11%;
+  height: 40%;
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(180deg, var(--navy-800), var(--navy-900));
+  box-shadow: 0 6px 12px -6px rgba(11, 21, 48, 0.5);
+}
+
+.circuit-battery-sign {
+  display: grid;
+  place-items: center;
+  color: var(--gold-400);
+  font-weight: 800;
+  font-size: 1.1rem;
+}
+
+.circuit-switch {
+  width: 16%;
+  height: 7%;
+  border-radius: 999px;
+  background: var(--navy-800);
+  border: 2px solid var(--navy-900);
+}
+
+.circuit-switch-lever {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 100%;
+  height: 3px;
+  background: var(--gold-500);
+  border-radius: 999px;
+  transform-origin: left center;
+  transform: translate(0, -50%) rotate(-24deg);
+  transition: transform var(--transition-medium);
+}
+
+.circuit-switch.is-closed .circuit-switch-lever {
+  transform: translate(0, -50%) rotate(0deg);
+}
+
+.circuit-bulb {
+  width: 12%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: 3px solid var(--navy-700);
+  background: var(--cream-100);
+  transition:
+    background var(--transition-medium),
+    box-shadow var(--transition-medium);
+}
+
+.circuit-bulb.is-lit {
+  background: radial-gradient(circle, #fff6c2, var(--gold-400));
+  box-shadow: 0 0 22px 6px rgba(245, 197, 66, 0.55);
+}
+
+.circuit-part-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--navy-800);
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+}
+
+/* Terminals are real buttons at least 44px across, so touch and keyboard users can reach them */
+.circuit-terminal {
+  position: absolute;
+  width: 44px;
+  height: 44px;
+  transform: translate(-50%, -50%);
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+
+.circuit-terminal-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--gold-500);
+  border: 2px solid var(--navy-900);
+  transition: transform var(--transition-fast);
+}
+
+.circuit-terminal:hover .circuit-terminal-dot {
+  transform: scale(1.2);
+}
+
+.circuit-terminal.is-selected .circuit-terminal-dot {
+  background: var(--electric-blue-400);
+  box-shadow: 0 0 0 4px rgba(45, 118, 214, 0.35);
+}
+
+.circuit-wire-remove {
+  position: absolute;
+  width: 44px;
+  height: 44px;
+  transform: translate(-50%, -50%);
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--navy-900);
+  font-size: 1.1rem;
+  font-weight: 800;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.circuit-wire-remove::before {
+  content: '';
+  position: absolute;
+  inset: 11px;
+  border-radius: 50%;
+  background: var(--color-surface);
+  border: 2px solid var(--navy-700);
+  z-index: -1;
+}
+
+.circuit-terminal:focus-visible,
+.circuit-wire-remove:focus-visible {
+  outline: 3px solid var(--navy-900);
+  outline-offset: 2px;
+}
+
+.circuit-board.is-complete .circuit-wire.is-flowing {
+  stroke: var(--electric-blue-400);
+}
+
+.circuit-result {
+  display: grid;
+  gap: 0.3rem;
+  padding: var(--space-sm) var(--space-md);
+  border-left: 5px solid var(--navy-700);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-muted);
+}
+
+.circuit-result p {
+  margin: 0;
+  line-height: 1.6;
+}
+
+.circuit-result-title {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.circuit-result-title.is-complete {
+  color: var(--color-success);
+}
+
+.circuit-result-title.is-short,
+.circuit-result-title.is-incomplete,
+.circuit-result-title.is-switch-open {
+  color: var(--color-error);
+}
+
+.circuit-notice {
+  font-weight: 700;
+  color: var(--navy-800);
+}
+
+.circuit-controls,
+.circuit-example-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.circuit-hint {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.circuit-examples {
+  border: 1px solid var(--cream-200);
+  border-radius: var(--radius-md);
+  padding: var(--space-sm) var(--space-md);
+  margin: 0;
+  min-width: 0;
+}
+
+.circuit-examples legend {
+  font-weight: 700;
+  padding: 0 0.25rem;
+}
+
+.circuit-wire-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.4rem;
+}
+
+.circuit-wire-list li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.35rem 0;
+  border-bottom: 1px dashed var(--cream-200);
+}
+
+/* Phones keep the whole board visible; the parts shrink but stay labeled */
+@media (max-width: 480px) {
+  .circuit-part-label {
+    font-size: 0.65rem;
+  }
+
+  .circuit-terminal {
+    width: 40px;
+    height: 40px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .circuit-wire.is-forward,
+  .circuit-wire.is-reverse {
+    animation: none;
+  }
+
+  .circuit-switch-lever,
+  .circuit-bulb,
+  .circuit-terminal-dot {
+    transition: none;
+  }
+}

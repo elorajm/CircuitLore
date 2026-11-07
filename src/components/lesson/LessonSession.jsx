@@ -30,7 +30,7 @@ function buildMetadata(step, quizScore, activityDone) {
   return { step, quizScore, activityDone }
 }
 
-function LessonSession({ lessonTitle, steps, record, saveState, persist, retrySave, nextLesson }) {
+function LessonSession({ lessonTitle, steps, record, saveState, persist, retrySave, nextLesson, circuitLab }) {
   const lastIndex = steps.length - 1
   const isReview = record?.status === 'completed'
   const started = record?.status === 'in_progress' || isReview
@@ -99,6 +99,7 @@ function LessonSession({ lessonTitle, steps, record, saveState, persist, retrySa
           quizScore={quizScore}
           totalQuestions={quizQuestionCount}
           nextLesson={nextLesson}
+          circuitLab={circuitLab}
         />
       ) : (
         <>

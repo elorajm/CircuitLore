@@ -254,7 +254,7 @@ describe('LearningJourney adventure map', () => {
     expect(screen.queryByText(/unlock/i)).not.toBeInTheDocument()
   })
 
-  it('links only the three playable chapters to their lesson routes', async () => {
+  it('links the three playable chapters to their lesson routes, and the lab', async () => {
     renderJourney()
     await screen.findAllByRole('link', { name: 'Start Lesson' })
 
@@ -263,6 +263,7 @@ describe('LearningJourney adventure map', () => {
       '/journey/history-001',
       '/journey/concept-001',
       '/journey/concept-002',
+      '/circuit-lab',
     ])
   })
 
@@ -284,5 +285,15 @@ describe('LearningJourney adventure map', () => {
     expect(screen.queryByText('Your Next Adventure')).not.toBeInTheDocument()
     expect(screen.queryByText('Your Progress')).not.toBeInTheDocument()
     expect(screen.queryByText(/what should i do next/i)).not.toBeInTheDocument()
+  })
+})
+
+describe('LearningJourney Circuit Lab card', () => {
+  it('invites students to experiment in the Circuit Lab from the journey', async () => {
+    useAuthMock.mockReturnValue(signedOut)
+    renderJourney()
+
+    expect(screen.getByText('Want to experiment?')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Open the Circuit Lab' })).toHaveAttribute('href', '/circuit-lab')
   })
 })

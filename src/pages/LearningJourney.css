@@ -349,3 +349,23 @@
     font-size: 1.2rem;
   }
 }
+
+.journey-lab {
+  display: grid;
+  gap: var(--space-xs);
+  justify-items: start;
+  padding: var(--space-sm) var(--space-md);
+  border-left: 5px solid var(--color-accent-gold);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+
+.journey-lab-title {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.journey-lab-text {
+  margin: 0;
+  line-height: 1.6;
+}

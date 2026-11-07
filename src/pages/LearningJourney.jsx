@@ -189,6 +189,18 @@ function LearningJourney() {
         })}
       </ol>
 
+      <aside className="journey-lab" aria-labelledby="journey-lab-title">
+        <h2 id="journey-lab-title" className="journey-lab-title">
+          Want to experiment?
+        </h2>
+        <p className="journey-lab-text">
+          Build circuits with a battery, a switch, and bulbs in the Virtual Circuit Lab.
+        </p>
+        <Link className="btn btn-secondary" to="/circuit-lab">
+          Open the Circuit Lab
+        </Link>
+      </aside>
+
       <p className="journey-future-note">
         Chapters marked Coming Soon are previews. They are not playable yet.
       </p>

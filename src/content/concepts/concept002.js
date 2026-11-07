@@ -5,6 +5,9 @@
 // Have a teacher or science reviewer check it before classroom use (see F4 plan).
 const concept002 = {
   lessonId: 'concept-002',
+  circuitLab: {
+    note: 'Build the same loop yourself. Connect the battery, switch, and bulbs, then break the loop and watch the bulb go dark.',
+  },
   steps: [
     {
       id: 'charge-on-the-move',

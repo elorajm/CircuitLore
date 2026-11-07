@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { TrophyIcon } from '../icons.jsx'
 import './Lesson.css'
 
-function LessonComplete({ lessonTitle, quizScore, totalQuestions, nextLesson }) {
+function LessonComplete({ lessonTitle, quizScore, totalQuestions, nextLesson, circuitLab }) {
   return (
     <section className="lesson-complete">
       <div className="lesson-complete-icon" aria-hidden="true">
@@ -30,6 +30,16 @@ function LessonComplete({ lessonTitle, quizScore, totalQuestions, nextLesson }) 
           <p className="lesson-complete-next-label">Up next</p>
           <Link className="btn btn-primary" to={`/journey/${nextLesson.id}`}>
             Continue to {nextLesson.title}
+          </Link>
+        </div>
+      )}
+
+      {circuitLab && (
+        <div className="lesson-complete-next">
+          <p className="lesson-complete-next-label">Try it yourself</p>
+          <p className="lesson-complete-lab-note">{circuitLab.note}</p>
+          <Link className="btn btn-secondary" to="/circuit-lab">
+            Open the Circuit Lab
           </Link>
         </div>
       )}

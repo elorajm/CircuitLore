@@ -189,3 +189,23 @@ describe('Navigation by sign-in state', () => {
     expect(within(navbar()).getByRole('link', { name: 'Log In' })).toBeInTheDocument()
   })
 })
+
+describe('Circuit Lab route', () => {
+  it('opens the Circuit Lab from the student navigation', async () => {
+    const user = userEvent.setup()
+    signInAs(student)
+    renderApp('/dashboard')
+
+    await user.click(await within(navbar()).findByRole('link', { name: 'Circuit Lab' }))
+
+    expect(await screen.findByRole('heading', { level: 1, name: 'Build a Circuit' })).toBeInTheDocument()
+    expect(screen.getByRole('group', { name: /Circuit board/ })).toBeInTheDocument()
+  })
+
+  it('serves the Circuit Lab to a visitor who is not signed in', () => {
+    renderApp('/circuit-lab')
+
+    expect(screen.getByRole('heading', { level: 1, name: 'Build a Circuit' })).toBeInTheDocument()
+    expect(screen.queryByText(/Log in/)).not.toBeInTheDocument()
+  })
+})

@@ -799,3 +799,49 @@ describe('lesson page flow between steps', () => {
     expect(screen.getByRole('link', { name: 'Return to Learning Journey' })).toBeInTheDocument()
   })
 })
+
+describe('lesson pages lead into the Circuit Lab', () => {
+  beforeEach(() => {
+    getLessonProgressMock.mockReset()
+  })
+
+  it('offers the Circuit Lab after finishing Electric Current', async () => {
+    const user = userEvent.setup()
+    getLessonProgressMock.mockResolvedValue({
+      lesson_id: 'concept-002',
+      status: 'completed',
+      attempts_count: 1,
+      completed_at: '2026-11-01T11:00:00.000Z',
+      metadata: { step: 5, quizScore: 3, activityDone: true },
+    })
+    renderLesson('/journey/concept-002')
+
+    expect(await screen.findByText(/Review mode/)).toBeInTheDocument()
+    for (let count = 0; count < 5; count += 1) {
+      await user.click(screen.getByRole('button', { name: 'Next' }))
+    }
+
+    expect(await screen.findByRole('link', { name: 'Open the Circuit Lab' })).toHaveAttribute('href', '/circuit-lab')
+    expect(screen.getByText(/Build the same loop yourself/)).toBeInTheDocument()
+  })
+
+  it('does not offer the lab after Electric Charge, which has no lab link', async () => {
+    const user = userEvent.setup()
+    getLessonProgressMock.mockResolvedValue({
+      lesson_id: 'concept-001',
+      status: 'completed',
+      attempts_count: 1,
+      completed_at: '2026-11-01T11:00:00.000Z',
+      metadata: { step: 6, quizScore: 3, activityDone: true },
+    })
+    renderLesson('/journey/concept-001')
+
+    expect(await screen.findByText(/Review mode/)).toBeInTheDocument()
+    for (let count = 0; count < 6; count += 1) {
+      await user.click(screen.getByRole('button', { name: 'Next' }))
+    }
+
+    expect(await screen.findByRole('heading', { level: 2, name: 'Congratulations!' })).toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: 'Open the Circuit Lab' })).not.toBeInTheDocument()
+  })
+})
