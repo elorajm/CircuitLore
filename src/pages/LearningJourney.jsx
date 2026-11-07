@@ -3,9 +3,6 @@ import { useLessonStatus } from '../hooks/useLessonStatus.js'
 import { CheckIcon, LockIcon } from '../components/icons.jsx'
 import './LearningJourney.css'
 
-const LESSON_ID = 'history-001'
-const LESSON_LINK = `/journey/${LESSON_ID}`
-
 const LESSON_ACTION_LABEL = {
   completed: 'Review Lesson',
   in_progress: 'Continue Lesson',
@@ -17,11 +14,31 @@ const LESSON_STATUS_LABEL = {
   not_started: 'Not started',
 }
 
-const UPCOMING_CHAPTERS = [
+const CHAPTERS = [
   {
-    title: 'Charge and Current',
-    teaser: 'Follow how charge moves through wires and other materials.',
+    number: 1,
+    lessonId: 'history-001',
+    title: 'The First Sparks',
+    intro:
+      'Start here. This chapter takes you back to the first people who saw that rubbing certain things could make them pull on light objects.',
+    lessonTitle: 'Electricity Mysteries',
+    description: 'Explore amber, static charge, and the mysterious pull that makes paper bits dance.',
+    parts: ['Story: the first clues', 'Activity: Rub and Attract', 'Quiz: Knowledge Check'],
   },
+  {
+    number: 2,
+    lessonId: 'concept-001',
+    title: 'Charge and Current',
+    intro:
+      'Learn what electric charge is, then tell apart static electricity that stays put from current that keeps moving.',
+    lessonTitle: 'Electric Charge',
+    description:
+      'Discover the tiny charged pieces inside everything, and why charge that stays still is different from charge that flows.',
+    parts: ['Story: charge and its two kinds of motion', 'Activity: Static or Current?', 'Quiz: Knowledge Check'],
+  },
+]
+
+const UPCOMING_CHAPTERS = [
   {
     title: 'Circuits to Build',
     teaser: 'Connect parts in one path or in several paths and compare what happens.',
@@ -32,12 +49,97 @@ const UPCOMING_CHAPTERS = [
   },
 ]
 
-function LearningJourney() {
-  const lessonStatus = useLessonStatus(LESSON_ID)
+function JourneyChapter({ chapter }) {
+  const lessonStatus = useLessonStatus(chapter.lessonId)
   const actionLabel = LESSON_ACTION_LABEL[lessonStatus] ?? 'Start Lesson'
   const statusLabel = LESSON_STATUS_LABEL[lessonStatus]
   const isChapterComplete = lessonStatus === 'completed'
+  const lessonLink = `/journey/${chapter.lessonId}`
 
+  let chapterTag = 'Up next'
+  if (isChapterComplete) {
+    chapterTag = 'Chapter complete'
+  } else if (chapter.number === 1) {
+    chapterTag = 'You are here'
+  }
+
+  return (
+    <li className={`journey-stop ${isChapterComplete ? 'is-complete' : 'is-current'}`}>
+      <div className="journey-node journey-node-active" aria-hidden="true">
+        {isChapterComplete ? <CheckIcon className="journey-node-icon" /> : <span>{chapter.number}</span>}
+      </div>
+
+      <section
+        className="journey-chapter-card journey-chapter-card-active"
+        aria-labelledby={`journey-chapter-${chapter.number}-title`}
+      >
+        <div className="journey-chapter-header">
+          <h2 id={`journey-chapter-${chapter.number}-title`} className="journey-chapter-title">
+            Chapter {chapter.number}: {chapter.title}
+          </h2>
+          <span className="journey-chapter-tag">{chapterTag}</span>
+        </div>
+        <p className="journey-chapter-intro">{chapter.intro}</p>
+
+        <article
+          className="journey-lesson-card"
+          aria-labelledby={`journey-lesson-${chapter.number}-title`}
+        >
+          <div className="journey-lesson-header">
+            <h3 id={`journey-lesson-${chapter.number}-title`} className="journey-lesson-title">
+              {chapter.lessonTitle}
+            </h3>
+            {statusLabel && (
+              <span
+                className={
+                  lessonStatus === 'completed'
+                    ? 'journey-badge'
+                    : lessonStatus === 'in_progress'
+                      ? 'journey-pill'
+                      : 'journey-pill journey-pill-muted'
+                }
+              >
+                {statusLabel}
+              </span>
+            )}
+          </div>
+
+          <p className="journey-lesson-description">{chapter.description}</p>
+
+          <ul className="journey-lesson-parts">
+            {chapter.parts.map((part) => (
+              <li key={part}>{part}</li>
+            ))}
+          </ul>
+
+          <div className="journey-lesson-footer">
+            {lessonStatus === 'signed-out' && (
+              <p className="journey-hint">Log in to save your progress as you go.</p>
+            )}
+            {lessonStatus === 'checking' && (
+              <p className="journey-status" role="status">
+                Checking your progress...
+              </p>
+            )}
+            {lessonStatus !== 'checking' && (
+              <Link className="btn btn-primary" to={lessonLink}>
+                {actionLabel}
+              </Link>
+            )}
+            {lessonStatus === 'error' && (
+              <p className="journey-hint">
+                We could not check your saved progress. Reload the page to see whether you have
+                finished this lesson.
+              </p>
+            )}
+          </div>
+        </article>
+      </section>
+    </li>
+  )
+}
+
+function LearningJourney() {
   return (
     <div className="journey-page">
       <header className="journey-hero">
@@ -51,85 +153,12 @@ function LearningJourney() {
       </header>
 
       <ol className="journey-map" aria-label="Your learning path">
-        <li className={`journey-stop ${isChapterComplete ? 'is-complete' : 'is-current'}`}>
-          <div className="journey-node journey-node-active" aria-hidden="true">
-            {isChapterComplete ? <CheckIcon className="journey-node-icon" /> : <span>1</span>}
-          </div>
-
-          <section
-            className="journey-chapter-card journey-chapter-card-active"
-            aria-labelledby="journey-chapter-1-title"
-          >
-            <div className="journey-chapter-header">
-              <h2 id="journey-chapter-1-title" className="journey-chapter-title">
-                Chapter 1: The First Sparks
-              </h2>
-              <span className="journey-chapter-tag">
-                {isChapterComplete ? 'Chapter complete' : 'You are here'}
-              </span>
-            </div>
-            <p className="journey-chapter-intro">
-              Start here. This chapter takes you back to the first people who saw that rubbing
-              certain things could make them pull on light objects.
-            </p>
-
-            <article className="journey-lesson-card" aria-labelledby="journey-lesson-title">
-              <div className="journey-lesson-header">
-                <h3 id="journey-lesson-title" className="journey-lesson-title">
-                  Electricity Mysteries
-                </h3>
-                {statusLabel && (
-                  <span
-                    className={
-                      lessonStatus === 'completed'
-                        ? 'journey-badge'
-                        : lessonStatus === 'in_progress'
-                          ? 'journey-pill'
-                          : 'journey-pill journey-pill-muted'
-                    }
-                  >
-                    {statusLabel}
-                  </span>
-                )}
-              </div>
-
-              <p className="journey-lesson-description">
-                Explore amber, static charge, and the mysterious pull that makes paper bits dance.
-              </p>
-
-              <ul className="journey-lesson-parts">
-                <li>Story: the first clues</li>
-                <li>Activity: Rub and Attract</li>
-                <li>Quiz: Knowledge Check</li>
-              </ul>
-
-              <div className="journey-lesson-footer">
-                {lessonStatus === 'signed-out' && (
-                  <p className="journey-hint">Log in to save your progress as you go.</p>
-                )}
-                {lessonStatus === 'checking' && (
-                  <p className="journey-status" role="status">
-                    Checking your progress...
-                  </p>
-                )}
-                {lessonStatus !== 'checking' && (
-                  <Link className="btn btn-primary" to={LESSON_LINK}>
-                    {actionLabel}
-                  </Link>
-                )}
-                {lessonStatus === 'error' && (
-                  <p className="journey-hint">
-                    We could not check your saved progress. Reload the page to see whether you have
-                    finished this lesson.
-                  </p>
-                )}
-              </div>
-            </article>
-          </section>
-        </li>
+        {CHAPTERS.map((chapter) => (
+          <JourneyChapter key={chapter.lessonId} chapter={chapter} />
+        ))}
 
         {UPCOMING_CHAPTERS.map((chapter, index) => {
-          const chapterNumber = index + 2
+          const chapterNumber = CHAPTERS.length + index + 1
           const titleId = `journey-chapter-${chapterNumber}-title`
 
           return (

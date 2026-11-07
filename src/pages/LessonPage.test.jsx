@@ -480,3 +480,121 @@ describe('LessonPage', () => {
     })
   })
 })
+
+describe('Electric Charge lesson (concept-001) progress', () => {
+  const CONCEPT_ID = 'concept-001'
+  const STATIC_LABEL = 'Static electricity'
+  const CURRENT_LABEL = 'Electric current'
+
+  function conceptRecord(status, metadata, extra = {}) {
+    return { lesson_id: CONCEPT_ID, status, attempts_count: 1, completed_at: null, metadata, ...extra }
+  }
+
+  function exampleGroups() {
+    return screen.getAllByRole('group')
+  }
+
+  beforeEach(() => {
+    resetProgressMock.mockReset()
+    saveProgressMock.mockReset()
+    getLessonProgressMock.mockReset()
+  })
+
+  it('starts at Step 1 and saves progress under concept-001 when Begin is clicked', async () => {
+    const user = userEvent.setup()
+    getLessonProgressMock.mockResolvedValue(null)
+    saveProgressMock.mockResolvedValue(conceptRecord('in_progress', { step: 1, quizScore: null, activityDone: false }))
+    renderLesson('/journey/concept-001')
+
+    await user.click(await screen.findByRole('button', { name: 'Begin' }))
+
+    expect(getLessonProgressMock).toHaveBeenCalledWith(CONCEPT_ID)
+    expect(saveProgressMock).toHaveBeenCalledWith(CONCEPT_ID, 'in_progress', {
+      step: 1,
+      quizScore: null,
+      activityDone: false,
+    })
+    expect(await screen.findByText('Step 2 of 7: Moving electrons')).toBeInTheDocument()
+  })
+
+  it('restores the saved step for a student returning to Electric Charge', async () => {
+    getLessonProgressMock.mockResolvedValue(
+      conceptRecord('in_progress', { step: 3, quizScore: null, activityDone: false }),
+    )
+    renderLesson('/journey/concept-001')
+
+    expect(await screen.findByText('Step 4 of 7: Current')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: 'Electric Charge' })).toBeInTheDocument()
+  })
+
+  it('saves activityDone only after all four examples are sorted, then allows Next', async () => {
+    const user = userEvent.setup()
+    getLessonProgressMock.mockResolvedValue(
+      conceptRecord('in_progress', { step: 4, quizScore: null, activityDone: false }),
+    )
+    saveProgressMock.mockResolvedValue(conceptRecord('in_progress', { step: 5, quizScore: null, activityDone: true }))
+    renderLesson('/journey/concept-001')
+
+    expect(await screen.findByRole('heading', { level: 2, name: 'Static or Current?' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Next' })).toBeDisabled()
+
+    const answers = [STATIC_LABEL, CURRENT_LABEL, STATIC_LABEL, CURRENT_LABEL]
+    for (const [index, label] of answers.entries()) {
+      await user.click(within(exampleGroups()[index]).getByRole('radio', { name: label }))
+    }
+    await user.click(screen.getByRole('button', { name: 'Next' }))
+
+    expect(saveProgressMock).toHaveBeenCalledWith(CONCEPT_ID, 'in_progress', {
+      step: 5,
+      quizScore: null,
+      activityDone: true,
+    })
+    expect(await screen.findByText('Step 6 of 7: Today')).toBeInTheDocument()
+  })
+
+  it('marks the lesson completed with the quiz score only on Finish Lesson', async () => {
+    const user = userEvent.setup()
+    getLessonProgressMock.mockResolvedValue(
+      conceptRecord('in_progress', { step: 6, quizScore: null, activityDone: true }),
+    )
+    saveProgressMock
+      .mockResolvedValueOnce(conceptRecord('in_progress', { step: 6, quizScore: 3, activityDone: true }))
+      .mockResolvedValueOnce(conceptRecord('completed', { step: 6, quizScore: 3, activityDone: true }))
+    renderLesson('/journey/concept-001')
+
+    await user.click(await screen.findByRole('radio', { name: 'Electron' }))
+    await user.click(screen.getByRole('radio', { name: 'They repel and push apart' }))
+    await user.click(
+      screen.getByRole('radio', {
+        name: 'Static electricity is charge that builds up and stays in place. Current is charge that keeps moving through a complete path.',
+      }),
+    )
+    await user.click(screen.getByRole('button', { name: 'Check answers' }))
+    await user.click(await screen.findByRole('button', { name: 'Finish Lesson' }))
+
+    expect(saveProgressMock).toHaveBeenNthCalledWith(2, CONCEPT_ID, 'completed', {
+      step: 6,
+      quizScore: 3,
+      activityDone: true,
+    })
+    expect(await screen.findByRole('heading', { level: 2, name: 'Congratulations!' })).toBeInTheDocument()
+    expect(screen.getByText('You completed Electric Charge!')).toBeInTheDocument()
+    expect(screen.getByText('3 out of 3 correct')).toBeInTheDocument()
+  })
+
+  it('resets Electric Charge using its own lesson id', async () => {
+    const user = userEvent.setup()
+    const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true)
+    getLessonProgressMock
+      .mockResolvedValueOnce(conceptRecord('completed', { step: 6, quizScore: 3, activityDone: true }))
+      .mockResolvedValue(conceptRecord('not_started', {}))
+    resetProgressMock.mockResolvedValue({ success: true })
+    renderLesson('/journey/concept-001')
+
+    await user.click(await screen.findByRole('button', { name: 'Reset Lesson Progress' }))
+
+    expect(resetProgressMock).toHaveBeenCalledWith(CONCEPT_ID)
+    expect(await screen.findByRole('button', { name: 'Begin' })).toBeInTheDocument()
+    confirmSpy.mockRestore()
+  })
+})

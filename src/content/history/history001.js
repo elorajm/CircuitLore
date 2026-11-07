@@ -76,6 +76,7 @@ const history001 = {
       type: 'activity',
       stepLabel: 'Activity',
       title: 'Rub and Attract',
+      activityId: 'rub-and-attract',
       intro: 'Rub the rod to build up charge. Then hold it near the paper bits and watch what happens.',
     },
     {

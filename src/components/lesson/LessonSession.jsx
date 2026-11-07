@@ -3,9 +3,16 @@ import { Link } from 'react-router-dom'
 import { ScrollIcon } from '../icons.jsx'
 import StoryBlock from './StoryBlock.jsx'
 import RubAttractActivity from './RubAttractActivity.jsx'
+import StaticOrCurrentActivity from './StaticOrCurrentActivity.jsx'
 import KnowledgeCheck from './KnowledgeCheck.jsx'
 import LessonComplete from './LessonComplete.jsx'
 import './Lesson.css'
+
+// Each activity step names its component with activityId, so lessons can use different activities
+const ACTIVITIES = {
+  'rub-and-attract': RubAttractActivity,
+  'static-or-current': StaticOrCurrentActivity,
+}
 
 function readMetadata(record) {
   const metadata = record?.metadata ?? {}
@@ -34,6 +41,7 @@ function LessonSession({ lessonTitle, steps, record, saveState, persist, retrySa
   const [quizScore, setQuizScore] = useState(saved.quizScore)
 
   const step = steps[stepIndex]
+  const ActivityComponent = step.type === 'activity' ? ACTIVITIES[step.activityId] : null
   const isSaving = saveState === 'saving'
   const isLast = stepIndex === lastIndex
   const showCompletion = isReview && isLast
@@ -111,7 +119,7 @@ function LessonSession({ lessonTitle, steps, record, saveState, persist, retrySa
           {step.type === 'activity' && (
             <>
               <p className="lesson-intro">{step.intro}</p>
-              <RubAttractActivity onCompleted={() => setActivityDone(true)} />
+              <ActivityComponent onCompleted={() => setActivityDone(true)} />
             </>
           )}
 

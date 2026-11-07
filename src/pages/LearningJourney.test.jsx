@@ -20,8 +20,15 @@ vi.mock('../services/progressService.js', () => ({
 const signedIn = { user: { id: 'student-1' }, loading: false }
 const signedOut = { user: null, loading: false }
 
-function record(status) {
-  return { lesson_id: 'history-001', status, attempts_count: 1, metadata: {} }
+function record(lessonId, status) {
+  return { lesson_id: lessonId, status, attempts_count: 1, metadata: {} }
+}
+
+// Each lesson card asks for its own progress. Lessons missing from statuses have no saved row.
+function progressFor(statuses) {
+  getLessonProgressMock.mockImplementation((lessonId) =>
+    Promise.resolve(statuses[lessonId] === undefined ? null : record(lessonId, statuses[lessonId])),
+  )
 }
 
 function renderJourney(initialEntries = ['/journey']) {
@@ -39,6 +46,10 @@ function lessonCard() {
   return screen.getByRole('article', { name: 'Electricity Mysteries' })
 }
 
+function conceptCard() {
+  return screen.getByRole('article', { name: 'Electric Charge' })
+}
+
 function path() {
   return screen.getByRole('list', { name: 'Your learning path' })
 }
@@ -47,11 +58,7 @@ function lockedChapter(title) {
   return screen.getByRole('region', { name: title })
 }
 
-const LOCKED_CHAPTERS = [
-  'Chapter 2: Charge and Current',
-  'Chapter 3: Circuits to Build',
-  'Chapter 4: Electricity at Home',
-]
+const LOCKED_CHAPTERS = ['Chapter 3: Circuits to Build', 'Chapter 4: Electricity at Home']
 
 describe('LearningJourney lesson status', () => {
   beforeEach(() => {
@@ -60,15 +67,16 @@ describe('LearningJourney lesson status', () => {
 
   it('shows a Completed badge, a Chapter complete tag, and a review link when the lesson is completed', async () => {
     useAuthMock.mockReturnValue(signedIn)
-    getLessonProgressMock.mockResolvedValue(record('completed'))
+    progressFor({ 'history-001': 'completed' })
     renderJourney()
 
-    expect(await screen.findByText('Completed')).toBeInTheDocument()
+    const card = lessonCard()
+    expect(await within(card).findByText('Completed')).toBeInTheDocument()
     expect(getLessonProgressMock).toHaveBeenCalledWith('history-001')
     expect(screen.getByText('Chapter complete')).toBeInTheDocument()
     expect(screen.queryByText('You are here')).not.toBeInTheDocument()
-    expect(screen.queryByRole('link', { name: 'Start Lesson' })).not.toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Review Lesson' })).toHaveAttribute(
+    expect(within(card).queryByRole('link', { name: 'Start Lesson' })).not.toBeInTheDocument()
+    expect(within(card).getByRole('link', { name: 'Review Lesson' })).toHaveAttribute(
       'href',
       '/journey/history-001',
     )
@@ -76,47 +84,49 @@ describe('LearningJourney lesson status', () => {
 
   it('offers Continue Lesson and an In progress label when the lesson is in progress', async () => {
     useAuthMock.mockReturnValue(signedIn)
-    getLessonProgressMock.mockResolvedValue(record('in_progress'))
+    progressFor({ 'history-001': 'in_progress' })
     renderJourney()
 
-    expect(await screen.findByRole('link', { name: 'Continue Lesson' })).toHaveAttribute(
+    const card = lessonCard()
+    expect(await within(card).findByRole('link', { name: 'Continue Lesson' })).toHaveAttribute(
       'href',
       '/journey/history-001',
     )
-    expect(screen.getByText('In progress')).toBeInTheDocument()
+    expect(within(card).getByText('In progress')).toBeInTheDocument()
     expect(screen.getByText('You are here')).toBeInTheDocument()
     expect(screen.queryByText('Completed')).not.toBeInTheDocument()
   })
 
   it('shows Not started and Start Lesson when the student has no progress row', async () => {
     useAuthMock.mockReturnValue(signedIn)
-    getLessonProgressMock.mockResolvedValue(null)
+    progressFor({})
     renderJourney()
 
-    expect(await screen.findByRole('link', { name: 'Start Lesson' })).toHaveAttribute(
+    const card = lessonCard()
+    expect(await within(card).findByRole('link', { name: 'Start Lesson' })).toHaveAttribute(
       'href',
       '/journey/history-001',
     )
-    expect(screen.getByText('Not started')).toBeInTheDocument()
+    expect(within(card).getByText('Not started')).toBeInTheDocument()
     expect(screen.queryByText('Completed')).not.toBeInTheDocument()
     expect(screen.queryByText('In progress')).not.toBeInTheDocument()
   })
 
   it('shows Not started when the saved row is not_started', async () => {
     useAuthMock.mockReturnValue(signedIn)
-    getLessonProgressMock.mockResolvedValue(record('not_started'))
+    progressFor({ 'history-001': 'not_started' })
     renderJourney()
 
-    expect(await screen.findByRole('link', { name: 'Start Lesson' })).toBeInTheDocument()
-    expect(screen.getByText('Not started')).toBeInTheDocument()
+    expect(await within(lessonCard()).findByRole('link', { name: 'Start Lesson' })).toBeInTheDocument()
+    expect(within(lessonCard()).getByText('Not started')).toBeInTheDocument()
   })
 
   it('offers Start Lesson without checking progress for a signed-out visitor', async () => {
     useAuthMock.mockReturnValue(signedOut)
     renderJourney()
 
-    expect(await screen.findByRole('link', { name: 'Start Lesson' })).toBeInTheDocument()
-    expect(screen.getByText('Log in to save your progress as you go.')).toBeInTheDocument()
+    expect(await screen.findAllByRole('link', { name: 'Start Lesson' })).toHaveLength(2)
+    expect(screen.getAllByText('Log in to save your progress as you go.')).toHaveLength(2)
     expect(getLessonProgressMock).not.toHaveBeenCalled()
     expect(screen.queryByText('Completed')).not.toBeInTheDocument()
     expect(screen.queryByText('Not started')).not.toBeInTheDocument()
@@ -127,8 +137,8 @@ describe('LearningJourney lesson status', () => {
     getLessonProgressMock.mockRejectedValue(new Error('Failed to fetch lesson progress: boom'))
     renderJourney()
 
-    expect(await screen.findByText(/We could not check your saved progress/)).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Start Lesson' })).toBeInTheDocument()
+    expect(await within(lessonCard()).findByText(/We could not check your saved progress/)).toBeInTheDocument()
+    expect(within(lessonCard()).getByRole('link', { name: 'Start Lesson' })).toBeInTheDocument()
     expect(screen.queryByText('Completed')).not.toBeInTheDocument()
     expect(screen.queryByText('Not started')).not.toBeInTheDocument()
   })
@@ -137,7 +147,9 @@ describe('LearningJourney lesson status', () => {
     useAuthMock.mockReturnValue({ user: null, loading: true })
     renderJourney()
 
-    expect(screen.getByRole('status')).toHaveTextContent('Checking your progress...')
+    const statuses = screen.getAllByRole('status')
+    expect(statuses).toHaveLength(2)
+    statuses.forEach((status) => expect(status).toHaveTextContent('Checking your progress...'))
     expect(screen.queryByRole('link', { name: /Start|Continue|Review/ })).not.toBeInTheDocument()
     expect(screen.queryByText('Completed')).not.toBeInTheDocument()
     expect(getLessonProgressMock).not.toHaveBeenCalled()
@@ -156,12 +168,12 @@ describe('LearningJourney adventure map', () => {
     expect(screen.getByRole('heading', { level: 1, name: 'Your Electricity Adventure' })).toBeInTheDocument()
     expect(screen.getByText(/first electrical clues/)).toBeInTheDocument()
     expect(screen.getByText(/electrical technology that powers homes today/)).toBeInTheDocument()
-    expect(await screen.findByRole('link', { name: 'Start Lesson' })).toBeInTheDocument()
+    expect(await screen.findAllByRole('link', { name: 'Start Lesson' })).toHaveLength(2)
   })
 
   it('lists four chapters in order on a single learning path', async () => {
     renderJourney()
-    await screen.findByRole('link', { name: 'Start Lesson' })
+    await screen.findAllByRole('link', { name: 'Start Lesson' })
 
     const items = Array.from(path().children)
     expect(items).toHaveLength(4)
@@ -191,11 +203,25 @@ describe('LearningJourney adventure map', () => {
     expect(await within(card).findByRole('link', { name: 'Start Lesson' })).toBeInTheDocument()
   })
 
-  it('shows the three upcoming chapters as locked Coming Soon previews', async () => {
+  it('shows Chapter 2 as a playable Charge and Current lesson with its activity and quiz', async () => {
     renderJourney()
-    await screen.findByRole('link', { name: 'Start Lesson' })
 
-    expect(screen.getAllByText('Coming Soon')).toHaveLength(3)
+    const card = conceptCard()
+    expect(within(card).getByRole('heading', { level: 3, name: 'Electric Charge' })).toBeInTheDocument()
+    expect(within(card).getByText('Activity: Static or Current?')).toBeInTheDocument()
+    expect(within(card).getByText('Quiz: Knowledge Check')).toBeInTheDocument()
+    expect(await within(card).findByRole('link', { name: 'Start Lesson' })).toHaveAttribute(
+      'href',
+      '/journey/concept-001',
+    )
+    expect(screen.getByText('Up next')).toBeInTheDocument()
+  })
+
+  it('shows the two upcoming chapters as locked Coming Soon previews', async () => {
+    renderJourney()
+    await screen.findAllByRole('link', { name: 'Start Lesson' })
+
+    expect(screen.getAllByText('Coming Soon')).toHaveLength(2)
     LOCKED_CHAPTERS.forEach((title) => {
       const section = lockedChapter(title)
       expect(within(section).getByText('Coming Soon')).toBeInTheDocument()
@@ -205,7 +231,7 @@ describe('LearningJourney adventure map', () => {
 
   it('keeps locked chapters free of links and buttons, and never implies they are unlocked', async () => {
     renderJourney()
-    await screen.findByRole('link', { name: 'Start Lesson' })
+    await screen.findAllByRole('link', { name: 'Start Lesson' })
 
     LOCKED_CHAPTERS.forEach((title) => {
       const section = lockedChapter(title)
@@ -215,27 +241,29 @@ describe('LearningJourney adventure map', () => {
     expect(screen.queryByText(/unlock/i)).not.toBeInTheDocument()
   })
 
-  it('links only to the Electricity Mysteries lesson route', async () => {
+  it('links only the two playable chapters to their lesson routes', async () => {
     renderJourney()
-    await screen.findByRole('link', { name: 'Start Lesson' })
+    await screen.findAllByRole('link', { name: 'Start Lesson' })
 
     const links = screen.getAllByRole('link')
-    expect(links).toHaveLength(1)
-    expect(links[0]).toHaveAttribute('href', '/journey/history-001')
+    expect(links.map((link) => link.getAttribute('href'))).toEqual([
+      '/journey/history-001',
+      '/journey/concept-001',
+    ])
   })
 
   it('opens the lesson route when the student chooses the lesson button', async () => {
     const user = userEvent.setup()
     renderJourney()
 
-    await user.click(await screen.findByRole('link', { name: 'Start Lesson' }))
+    await user.click(await within(lessonCard()).findByRole('link', { name: 'Start Lesson' }))
 
     expect(screen.getByText('Lesson route opened')).toBeInTheDocument()
   })
 
   it('does not repeat Dashboard summary cards or next-step sections', async () => {
     renderJourney()
-    await screen.findByRole('link', { name: 'Start Lesson' })
+    await screen.findAllByRole('link', { name: 'Start Lesson' })
 
     expect(screen.queryByText('Playable lessons')).not.toBeInTheDocument()
     expect(screen.queryByText('Lessons completed')).not.toBeInTheDocument()

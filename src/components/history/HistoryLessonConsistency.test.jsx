@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import HistoryTimeline from './HistoryTimeline.jsx'
 import LearningJourney from '../../pages/LearningJourney.jsx'
@@ -25,6 +25,13 @@ function record(status) {
   return { lesson_id: 'history-001', status, attempts_count: 1, metadata: {} }
 }
 
+// Only Electricity Mysteries has saved progress in these tests. Electric Charge has no row.
+function progressForHistoryLesson(progress) {
+  getLessonProgressMock.mockImplementation((lessonId) =>
+    Promise.resolve(lessonId === 'history-001' ? progress : null),
+  )
+}
+
 function renderBothPages() {
   return render(
     <MemoryRouter>
@@ -33,6 +40,14 @@ function renderBothPages() {
     </MemoryRouter>,
   )
 }
+
+// The journey also lists Electric Charge, so its lesson link is scoped to the Electricity Mysteries card
+function journeyCard() {
+  return screen.getByRole('article', { name: 'Electricity Mysteries' })
+}
+
+// History, plus one checking or error message per journey lesson card
+const STATUS_REGIONS_WHILE_CHECKING = 3
 
 const ERROR_HINT = /We could not check your saved progress/
 
@@ -69,11 +84,11 @@ describe('History and Learning Journey show the same lesson status', () => {
     'for a signed-in student who is $name',
     async ({ progress, historyLink, journeyLink, completed }) => {
       useAuthMock.mockReturnValue(signedIn)
-      getLessonProgressMock.mockResolvedValue(progress)
+      progressForHistoryLesson(progress)
       renderBothPages()
 
       expect(await screen.findByRole('link', { name: historyLink })).toBeInTheDocument()
-      expect(screen.getByRole('link', { name: journeyLink })).toBeInTheDocument()
+      expect(await within(journeyCard()).findByRole('link', { name: journeyLink })).toBeInTheDocument()
       expect(getLessonProgressMock).toHaveBeenCalledWith('history-001')
 
       expect(screen.queryByText(/Log in to/)).not.toBeInTheDocument()
@@ -95,7 +110,7 @@ describe('History and Learning Journey show the same lesson status', () => {
     renderBothPages()
 
     expect(await screen.findByRole('link', { name: 'Start lesson' })).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Start Lesson' })).toBeInTheDocument()
+    expect(within(journeyCard()).getByRole('link', { name: 'Start Lesson' })).toBeInTheDocument()
     expect(screen.getByText(/Log in to start this lesson/)).toBeInTheDocument()
     expect(getLessonProgressMock).not.toHaveBeenCalled()
     expect(screen.queryByText('Completed')).not.toBeInTheDocument()
@@ -105,7 +120,7 @@ describe('History and Learning Journey show the same lesson status', () => {
     useAuthMock.mockReturnValue({ user: null, loading: true })
     renderBothPages()
 
-    expect(screen.getAllByRole('status')).toHaveLength(2)
+    expect(screen.getAllByRole('status')).toHaveLength(STATUS_REGIONS_WHILE_CHECKING)
     screen.getAllByText('Checking your progress...').forEach((node) => {
       expect(node).toBeInTheDocument()
     })
@@ -119,7 +134,7 @@ describe('History and Learning Journey show the same lesson status', () => {
     getLessonProgressMock.mockReturnValue(new Promise(() => {}))
     renderBothPages()
 
-    expect(screen.getAllByRole('status')).toHaveLength(2)
+    expect(screen.getAllByRole('status')).toHaveLength(STATUS_REGIONS_WHILE_CHECKING)
     expect(screen.queryByRole('link', { name: /Start|Continue|Review/ })).not.toBeInTheDocument()
     expect(screen.queryByText(/Log in to/)).not.toBeInTheDocument()
     expect(screen.queryByText('Completed')).not.toBeInTheDocument()
@@ -132,8 +147,8 @@ describe('History and Learning Journey show the same lesson status', () => {
     renderBothPages()
 
     expect(await screen.findByRole('link', { name: 'Start lesson' })).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Start Lesson' })).toBeInTheDocument()
-    expect(screen.getAllByText(ERROR_HINT)).toHaveLength(2)
+    expect(within(journeyCard()).getByRole('link', { name: 'Start Lesson' })).toBeInTheDocument()
+    expect(screen.getAllByText(ERROR_HINT)).toHaveLength(STATUS_REGIONS_WHILE_CHECKING)
     expect(screen.queryByText('Completed')).not.toBeInTheDocument()
     expect(screen.queryByText('Lesson completed!')).not.toBeInTheDocument()
     expect(screen.queryByText(/Log in to/)).not.toBeInTheDocument()

@@ -5,19 +5,17 @@ import { useLessonStatus } from '../hooks/useLessonStatus.js'
 import { getProgress } from '../services/progressService.js'
 import LESSONS from '../constants/lessons.js'
 import { isLessonAvailable } from '../content/history/lessonAvailability.js'
+import lessonContent from '../content/lessonContent.js'
+import { chooseNextLessonId } from '../content/nextLesson.js'
 import './StudentDashboard.css'
-
-const NEXT_LESSON_ID = 'history-001'
-const NEXT_LESSON_LINK = `/journey/${NEXT_LESSON_ID}`
 
 const NEXT_LESSON_ACTION_LABEL = {
   completed: 'Review Lesson',
   in_progress: 'Continue Lesson',
 }
 
-const PLAYABLE_LESSON_IDS = new Set(
-  LESSONS.filter((lesson) => isLessonAvailable(lesson.id)).map((lesson) => lesson.id),
-)
+const PLAYABLE_LESSONS = LESSONS.filter((lesson) => isLessonAvailable(lesson.id))
+const PLAYABLE_LESSON_IDS = new Set(PLAYABLE_LESSONS.map((lesson) => lesson.id))
 
 const EXPLORE_LINKS = [
   {
@@ -70,14 +68,67 @@ function useProgressOverview(userId) {
   return result
 }
 
+function NextAdventureCard({ lessonId }) {
+  const status = useLessonStatus(lessonId)
+  const lesson = LESSONS.find((item) => item.id === lessonId)
+  const activity = lessonContent[lessonId]?.steps.find((step) => step.type === 'activity')
+  const actionLabel = NEXT_LESSON_ACTION_LABEL[status] ?? 'Start Lesson'
+
+  return (
+    <article className="dashboard-next-card" aria-labelledby="dashboard-next-lesson-title">
+      <div className="dashboard-next-header">
+        <h3 id="dashboard-next-lesson-title" className="dashboard-next-lesson-title">
+          {lesson.title}
+        </h3>
+        {status === 'completed' && <span className="dashboard-badge">Completed</span>}
+        {status === 'in_progress' && <span className="dashboard-pill">In progress</span>}
+      </div>
+
+      <p className="dashboard-next-description">
+        {lesson.description}. Read the story
+        {activity && `, try the ${activity.title} activity`}, and finish with the Knowledge Check quiz.
+      </p>
+
+      <div className="dashboard-next-footer">
+        {status === 'checking' && (
+          <p className="dashboard-status" role="status">
+            Checking your progress...
+          </p>
+        )}
+        {status !== 'checking' && (
+          <Link className="btn btn-primary" to={`/journey/${lessonId}`}>
+            {actionLabel}
+          </Link>
+        )}
+        {status === 'error' && (
+          <p className="dashboard-hint">
+            We could not check your saved progress. Reload the page to see whether you have finished
+            this lesson.
+          </p>
+        )}
+      </div>
+    </article>
+  )
+}
+
+function NextAdventurePlaceholder() {
+  return (
+    <article className="dashboard-next-card">
+      <div className="dashboard-next-footer">
+        <p className="dashboard-status" role="status">
+          Checking your progress...
+        </p>
+      </div>
+    </article>
+  )
+}
+
 function StudentDashboard() {
   const { user } = useAuth()
   const userId = user?.id ?? null
-  const nextLessonStatus = useLessonStatus(NEXT_LESSON_ID)
   const overview = useProgressOverview(userId)
-  const nextLesson = LESSONS.find((lesson) => lesson.id === NEXT_LESSON_ID)
+  const nextLessonId = chooseNextLessonId(overview.rows, PLAYABLE_LESSONS)
   const displayName = user?.user_metadata?.display_name?.trim() || 'explorer'
-  const actionLabel = NEXT_LESSON_ACTION_LABEL[nextLessonStatus] ?? 'Start Lesson'
 
   if (!user) {
     return (
@@ -111,43 +162,11 @@ function StudentDashboard() {
           Your Next Adventure
         </h2>
 
-        <article className="dashboard-next-card" aria-labelledby="dashboard-next-lesson-title">
-          <div className="dashboard-next-header">
-            <h3 id="dashboard-next-lesson-title" className="dashboard-next-lesson-title">
-              {nextLesson.title}
-            </h3>
-            {nextLessonStatus === 'completed' && (
-              <span className="dashboard-badge">Completed</span>
-            )}
-            {nextLessonStatus === 'in_progress' && (
-              <span className="dashboard-pill">In progress</span>
-            )}
-          </div>
-
-          <p className="dashboard-next-description">
-            {nextLesson.description}. Read the story, try the Rub and Attract activity, and finish
-            with the Knowledge Check quiz.
-          </p>
-
-          <div className="dashboard-next-footer">
-            {nextLessonStatus === 'checking' && (
-              <p className="dashboard-status" role="status">
-                Checking your progress...
-              </p>
-            )}
-            {nextLessonStatus !== 'checking' && (
-              <Link className="btn btn-primary" to={NEXT_LESSON_LINK}>
-                {actionLabel}
-              </Link>
-            )}
-            {nextLessonStatus === 'error' && (
-              <p className="dashboard-hint">
-                We could not check your saved progress. Reload the page to see whether you have
-                finished this lesson.
-              </p>
-            )}
-          </div>
-        </article>
+        {overview.status === 'loading' ? (
+          <NextAdventurePlaceholder />
+        ) : (
+          nextLessonId && <NextAdventureCard lessonId={nextLessonId} />
+        )}
       </section>
 
       <section className="dashboard-section" aria-labelledby="dashboard-progress-title">

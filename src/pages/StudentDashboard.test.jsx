@@ -67,11 +67,42 @@ describe('Your Next Adventure card', () => {
   it('offers Start Lesson to a student who has not started, linking to the lesson route', async () => {
     renderDashboard()
 
-    const card = screen.getByRole('article', { name: 'Electricity Mysteries' })
+    const card = await screen.findByRole('article', { name: 'Electricity Mysteries' })
     const link = await within(card).findByRole('link', { name: 'Start Lesson' })
     expect(link).toHaveAttribute('href', '/journey/history-001')
     expect(getLessonProgressMock).toHaveBeenCalledWith('history-001')
     expect(screen.queryByText('Completed')).not.toBeInTheDocument()
+  })
+
+  it('recommends Electric Charge once Electricity Mysteries is completed', async () => {
+    getProgressMock.mockResolvedValue([record('history-001', 'completed')])
+    renderDashboard()
+
+    const card = await screen.findByRole('article', { name: 'Electric Charge' })
+    expect(await within(card).findByRole('link', { name: 'Start Lesson' })).toHaveAttribute(
+      'href',
+      '/journey/concept-001',
+    )
+    expect(getLessonProgressMock).toHaveBeenCalledWith('concept-001')
+    expect(within(card).getByText(/try the Static or Current\? activity/)).toBeInTheDocument()
+  })
+
+  it('resumes Electric Charge when the student saved it as in progress', async () => {
+    getProgressMock.mockResolvedValue([
+      record('history-001', 'completed'),
+      { ...record('concept-001', 'in_progress'), last_accessed_at: '2026-11-02T10:00:00Z' },
+    ])
+    getLessonProgressMock.mockImplementation((lessonId) =>
+      Promise.resolve(lessonId === 'concept-001' ? record('concept-001', 'in_progress') : null),
+    )
+    renderDashboard()
+
+    const card = await screen.findByRole('article', { name: 'Electric Charge' })
+    expect(await within(card).findByRole('link', { name: 'Continue Lesson' })).toHaveAttribute(
+      'href',
+      '/journey/concept-001',
+    )
+    expect(within(card).getByText('In progress')).toBeInTheDocument()
   })
 
   it('offers Continue Lesson and an In progress label when the saved status is in progress', async () => {
@@ -123,11 +154,9 @@ describe('Progress overview', () => {
     renderDashboard()
 
     const playable = await screen.findByText('Playable lessons')
-    expect(playable.nextElementSibling).toHaveTextContent('1')
+    expect(playable.nextElementSibling).toHaveTextContent('2')
     expect(screen.getByText('Lessons completed').nextElementSibling).toHaveTextContent('1')
-    expect(
-      screen.getByText('Only one lesson is playable right now. More adventures are on the way.'),
-    ).toBeInTheDocument()
+    expect(screen.queryByText(/Only one lesson is playable/)).not.toBeInTheDocument()
   })
 
   it('does not count completed rows for lessons that are not playable', async () => {
