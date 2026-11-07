@@ -778,7 +778,7 @@ describe('lesson page flow between steps', () => {
     expect(saveProgressMock).not.toHaveBeenCalled()
   })
 
-  it('shows no next lesson after the last playable lesson', async () => {
+  it('leads a finished Electric Current into Home Electricity, which is now the last playable lesson', async () => {
     const user = userEvent.setup()
     getLessonProgressMock.mockResolvedValue({
       lesson_id: 'concept-002',
@@ -795,8 +795,134 @@ describe('lesson page flow between steps', () => {
     }
 
     expect(await screen.findByRole('heading', { level: 2, name: 'Congratulations!' })).toBeInTheDocument()
-    expect(screen.queryByRole('link', { name: /Continue to/ })).not.toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Continue to Home Electricity' })).toHaveAttribute(
+      'href',
+      '/journey/modern-001',
+    )
     expect(screen.getByRole('link', { name: 'Return to Learning Journey' })).toBeInTheDocument()
+  })
+})
+
+describe('Home Electricity lesson (modern-001) progress', () => {
+  const HOME_ID = 'modern-001'
+  const TOTAL_STEPS = 10
+
+  function homeRecord(status, metadata, extra = {}) {
+    return { lesson_id: HOME_ID, status, attempts_count: 1, completed_at: null, metadata, ...extra }
+  }
+
+  beforeEach(() => {
+    resetProgressMock.mockReset()
+    saveProgressMock.mockReset()
+    getLessonProgressMock.mockReset()
+  })
+
+  it('starts at Step 1 and saves progress under modern-001 when Begin is clicked', async () => {
+    const user = userEvent.setup()
+    getLessonProgressMock.mockResolvedValue(null)
+    saveProgressMock.mockResolvedValue(homeRecord('in_progress', { step: 1, quizScore: null, activityDone: false }))
+    renderLesson('/journey/modern-001')
+
+    await user.click(await screen.findByRole('button', { name: 'Begin' }))
+
+    expect(getLessonProgressMock).toHaveBeenCalledWith(HOME_ID)
+    expect(saveProgressMock).toHaveBeenCalledWith(HOME_ID, 'in_progress', {
+      step: 1,
+      quizScore: null,
+      activityDone: false,
+    })
+    expect(await screen.findByText(`Step 2 of ${TOTAL_STEPS}: Power plants`)).toBeInTheDocument()
+  })
+
+  it('restores the saved step for a student returning to Home Electricity', async () => {
+    getLessonProgressMock.mockResolvedValue(homeRecord('in_progress', { step: 3, quizScore: null, activityDone: false }))
+    renderLesson('/journey/modern-001')
+
+    expect(await screen.findByText(`Step 4 of ${TOTAL_STEPS}: Your neighborhood`)).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: 'Home Electricity' })).toBeInTheDocument()
+  })
+
+  it('shows the three historical discoveries behind the lesson above it', async () => {
+    getLessonProgressMock.mockResolvedValue(null)
+    renderLesson('/journey/modern-001')
+
+    expect(screen.getByText(/3 discoveries behind this lesson/)).toBeInTheDocument()
+    expect(await screen.findByRole('button', { name: 'Begin' })).toBeInTheDocument()
+  })
+
+  it('saves activityDone only after the breaker trips and is reset, then allows Next', async () => {
+    const user = userEvent.setup()
+    getLessonProgressMock.mockResolvedValue(homeRecord('in_progress', { step: 7, quizScore: null, activityDone: false }))
+    saveProgressMock.mockResolvedValue(homeRecord('in_progress', { step: 8, quizScore: null, activityDone: true }))
+    renderLesson('/journey/modern-001')
+
+    expect(await screen.findByRole('heading', { level: 2, name: 'Power the House' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Next' })).toBeDisabled()
+
+    await user.click(screen.getByRole('button', { name: 'Microwave, 1,000 W' }))
+    await user.click(screen.getByRole('button', { name: 'Hair dryer, 1,500 W' }))
+    expect(screen.getByRole('button', { name: 'Next' })).toBeDisabled()
+
+    await user.click(screen.getByRole('button', { name: 'Reset breaker' }))
+    expect(screen.getByRole('button', { name: 'Next' })).toBeDisabled()
+
+    await user.click(screen.getByRole('button', { name: 'LED lamp, 10 W' }))
+    await user.click(screen.getByRole('button', { name: 'Laptop, 60 W' }))
+    await user.click(screen.getByRole('button', { name: 'Next' }))
+
+    expect(saveProgressMock).toHaveBeenCalledWith(HOME_ID, 'in_progress', {
+      step: 8,
+      quizScore: null,
+      activityDone: true,
+    })
+    expect(await screen.findByText(`Step 9 of ${TOTAL_STEPS}: Today`)).toBeInTheDocument()
+  })
+
+  it('marks the lesson completed with the quiz score only on Finish Lesson, then links to the Circuit Lab', async () => {
+    const user = userEvent.setup()
+    getLessonProgressMock.mockResolvedValue(homeRecord('in_progress', { step: 9, quizScore: null, activityDone: true }))
+    saveProgressMock
+      .mockResolvedValueOnce(homeRecord('in_progress', { step: 9, quizScore: 3, activityDone: true }))
+      .mockResolvedValueOnce(homeRecord('completed', { step: 9, quizScore: 3, activityDone: true }))
+    renderLesson('/journey/modern-001')
+
+    await user.click(await screen.findByRole('radio', { name: 'By spinning a magnet inside coils of wire' }))
+    await user.click(
+      screen.getByRole('radio', {
+        name: 'For the same power, high voltage needs a smaller current, which wastes less energy as heat',
+      }),
+    )
+    await user.click(
+      screen.getByRole('radio', { name: 'It cuts off the power when the current gets too high, to protect the wires' }),
+    )
+    await user.click(screen.getByRole('button', { name: 'Check answers' }))
+    await user.click(await screen.findByRole('button', { name: 'Finish Lesson' }))
+
+    expect(saveProgressMock).toHaveBeenNthCalledWith(2, HOME_ID, 'completed', {
+      step: 9,
+      quizScore: 3,
+      activityDone: true,
+    })
+    expect(await screen.findByRole('heading', { level: 2, name: 'Congratulations!' })).toBeInTheDocument()
+    expect(screen.getByText('You completed Home Electricity!')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Open the Circuit Lab' })).toHaveAttribute('href', '/circuit-lab')
+    expect(screen.queryByRole('link', { name: /Continue to/ })).not.toBeInTheDocument()
+  })
+
+  it('resets Home Electricity using its own lesson id', async () => {
+    const user = userEvent.setup()
+    const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true)
+    getLessonProgressMock
+      .mockResolvedValueOnce(homeRecord('completed', { step: 9, quizScore: 3, activityDone: true }))
+      .mockResolvedValue(homeRecord('not_started', {}))
+    resetProgressMock.mockResolvedValue({ success: true })
+    renderLesson('/journey/modern-001')
+
+    await user.click(await screen.findByRole('button', { name: 'Reset Lesson Progress' }))
+
+    expect(resetProgressMock).toHaveBeenCalledWith(HOME_ID)
+    expect(await screen.findByRole('button', { name: 'Begin' })).toBeInTheDocument()
+    confirmSpy.mockRestore()
   })
 })
 

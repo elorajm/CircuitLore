@@ -47,14 +47,20 @@ const CHAPTERS = [
       'Learn what current is, and what a power source, a conductor, and a load do in a circuit.',
     parts: ['Story: current and the complete path', 'Activity: Build the Loop', 'Quiz: Knowledge Check'],
   },
-]
-
-const UPCOMING_CHAPTERS = [
   {
+    number: 4,
+    lessonId: 'modern-001',
     title: 'Electricity at Home',
-    teaser: 'Discover how the power in your home reaches the outlets you use.',
+    intro: 'Discover how electricity reaches your home, how devices use power, and how to stay safe around it.',
+    lessonTitle: 'Home Electricity',
+    description: 'How electricity powers homes, from the power plant to the outlet.',
+    parts: ['Story: from power plant to outlet', 'Activity: Power the House', 'Quiz: Knowledge Check'],
   },
 ]
+
+// Future chapters that are shown as locked previews. Empty now that every planned chapter is playable.
+// Add entries here to show a Coming Soon preview before a lesson is built.
+const UPCOMING_CHAPTERS = []
 
 function JourneyChapter({ chapter }) {
   const lessonStatus = useLessonStatus(chapter.lessonId)
@@ -201,9 +207,11 @@ function LearningJourney() {
         </Link>
       </aside>
 
-      <p className="journey-future-note">
-        Chapters marked Coming Soon are previews. They are not playable yet.
-      </p>
+      {UPCOMING_CHAPTERS.length > 0 && (
+        <p className="journey-future-note">
+          Chapters marked Coming Soon are previews. They are not playable yet.
+        </p>
+      )}
     </div>
   )
 }

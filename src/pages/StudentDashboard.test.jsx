@@ -169,7 +169,7 @@ describe('Progress overview', () => {
     renderDashboard()
 
     const playable = await screen.findByText('Playable lessons')
-    expect(playable.nextElementSibling).toHaveTextContent('3')
+    expect(playable.nextElementSibling).toHaveTextContent('4')
     expect(screen.getByText('Lessons completed').nextElementSibling).toHaveTextContent('1')
     expect(screen.queryByText(/Only one lesson is playable/)).not.toBeInTheDocument()
   })

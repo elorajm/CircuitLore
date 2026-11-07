@@ -61,6 +61,28 @@ describe('historical connections', () => {
     expect(isLessonAvailable('history-999')).toBe(false)
   })
 
+  it('connects Electricity at Home to Faraday, Tesla, and Edison, and only those', () => {
+    const ids = historyConnectionsForLesson('modern-001').map((connection) => connection.milestone.id)
+
+    expect(ids.sort()).toEqual(['edison-lamp', 'faraday-induction', 'tesla-ac-motor'])
+  })
+
+  it('offers Electricity at Home from each of those milestones now that the lesson is playable', () => {
+    for (const id of ['faraday-induction', 'tesla-ac-motor', 'edison-lamp']) {
+      expect(playableLessonsForMilestone(milestone(id)).map((lesson) => lesson.lessonId)).toEqual(['modern-001'])
+    }
+  })
+
+  it('credits the AC systems to more than Tesla, and the lamp to a lighting system, in the Electricity at Home notes', () => {
+    const notes = Object.fromEntries(
+      historyConnectionsForLesson('modern-001').map((connection) => [connection.milestone.id, connection.note]),
+    )
+
+    expect(notes['tesla-ac-motor']).toMatch(/licensed through Westinghouse/)
+    expect(notes['edison-lamp']).toMatch(/lamp and lighting system/)
+    expect(notes['faraday-induction']).toMatch(/discovered induction/)
+  })
+
   it('returns playable related lessons with their titles for a milestone', () => {
     expect(playableLessonsForMilestone(milestone('thomson-electron'))).toEqual([
       expect.objectContaining({ lessonId: 'concept-001', title: 'Electric Charge' }),

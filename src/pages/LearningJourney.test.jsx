@@ -54,12 +54,6 @@ function path() {
   return screen.getByRole('list', { name: 'Your learning path' })
 }
 
-function lockedChapter(title) {
-  return screen.getByRole('region', { name: title })
-}
-
-const LOCKED_CHAPTERS = ['Chapter 4: Electricity at Home']
-
 describe('LearningJourney lesson status', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -125,8 +119,8 @@ describe('LearningJourney lesson status', () => {
     useAuthMock.mockReturnValue(signedOut)
     renderJourney()
 
-    expect(await screen.findAllByRole('link', { name: 'Start Lesson' })).toHaveLength(3)
-    expect(screen.getAllByText('Log in to save your progress as you go.')).toHaveLength(3)
+    expect(await screen.findAllByRole('link', { name: 'Start Lesson' })).toHaveLength(4)
+    expect(screen.getAllByText('Log in to save your progress as you go.')).toHaveLength(4)
     expect(getLessonProgressMock).not.toHaveBeenCalled()
     expect(screen.queryByText('Completed')).not.toBeInTheDocument()
     expect(screen.queryByText('Not started')).not.toBeInTheDocument()
@@ -148,7 +142,7 @@ describe('LearningJourney lesson status', () => {
     renderJourney()
 
     const statuses = screen.getAllByRole('status')
-    expect(statuses).toHaveLength(3)
+    expect(statuses).toHaveLength(4)
     statuses.forEach((status) => expect(status).toHaveTextContent('Checking your progress...'))
     expect(screen.queryByRole('link', { name: /Start|Continue|Review/ })).not.toBeInTheDocument()
     expect(screen.queryByText('Completed')).not.toBeInTheDocument()
@@ -168,7 +162,7 @@ describe('LearningJourney adventure map', () => {
     expect(screen.getByRole('heading', { level: 1, name: 'Your Electricity Adventure' })).toBeInTheDocument()
     expect(screen.getByText(/first electrical clues/)).toBeInTheDocument()
     expect(screen.getByText(/electrical technology that powers homes today/)).toBeInTheDocument()
-    expect(await screen.findAllByRole('link', { name: 'Start Lesson' })).toHaveLength(3)
+    expect(await screen.findAllByRole('link', { name: 'Start Lesson' })).toHaveLength(4)
   })
 
   it('lists four chapters in order on a single learning path', async () => {
@@ -214,7 +208,7 @@ describe('LearningJourney adventure map', () => {
       'href',
       '/journey/concept-001',
     )
-    expect(screen.getAllByText('Up next')).toHaveLength(2)
+    expect(screen.getAllByText('Up next')).toHaveLength(3)
   })
 
   it('shows Chapter 3 as a playable Electric Current lesson with its activity and quiz', async () => {
@@ -230,31 +224,29 @@ describe('LearningJourney adventure map', () => {
     )
   })
 
-  it('shows the upcoming chapter as a locked Coming Soon preview', async () => {
+  it('shows Chapter 4 as a playable Home Electricity lesson with its activity and quiz', async () => {
     renderJourney()
-    await screen.findAllByRole('link', { name: 'Start Lesson' })
 
-    expect(screen.getAllByText('Coming Soon')).toHaveLength(1)
-    LOCKED_CHAPTERS.forEach((title) => {
-      const section = lockedChapter(title)
-      expect(within(section).getByText('Coming Soon')).toBeInTheDocument()
-    })
-    expect(screen.getByText(/They are not playable yet/)).toBeInTheDocument()
+    const card = screen.getByRole('article', { name: 'Home Electricity' })
+    expect(within(card).getByRole('heading', { level: 3, name: 'Home Electricity' })).toBeInTheDocument()
+    expect(within(card).getByText('Activity: Power the House')).toBeInTheDocument()
+    expect(within(card).getByText('Quiz: Knowledge Check')).toBeInTheDocument()
+    expect(await within(card).findByRole('link', { name: 'Start Lesson' })).toHaveAttribute(
+      'href',
+      '/journey/modern-001',
+    )
   })
 
-  it('keeps locked chapters free of links and buttons, and never implies they are unlocked', async () => {
+  it('shows no locked previews now that every planned chapter is playable', async () => {
     renderJourney()
     await screen.findAllByRole('link', { name: 'Start Lesson' })
 
-    LOCKED_CHAPTERS.forEach((title) => {
-      const section = lockedChapter(title)
-      expect(within(section).queryAllByRole('link')).toHaveLength(0)
-      expect(within(section).queryAllByRole('button')).toHaveLength(0)
-    })
+    expect(screen.queryAllByText('Coming Soon')).toHaveLength(0)
+    expect(screen.queryByText(/They are not playable yet/)).not.toBeInTheDocument()
     expect(screen.queryByText(/unlock/i)).not.toBeInTheDocument()
   })
 
-  it('links the three playable chapters to their lesson routes, and the lab', async () => {
+  it('links the four playable chapters to their lesson routes, and the lab', async () => {
     renderJourney()
     await screen.findAllByRole('link', { name: 'Start Lesson' })
 
@@ -263,6 +255,7 @@ describe('LearningJourney adventure map', () => {
       '/journey/history-001',
       '/journey/concept-001',
       '/journey/concept-002',
+      '/journey/modern-001',
       '/circuit-lab',
     ])
   })

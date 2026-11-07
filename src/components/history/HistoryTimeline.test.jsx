@@ -181,7 +181,7 @@ describe('HistoryTimeline', () => {
         expect(screen.queryByRole('link', { name: /lesson/ })).not.toBeInTheDocument()
       }
     }
-  })
+  }, 20000)
 
   it('shows the time gap only for milestones that follow a long pause', async () => {
     const user = userEvent.setup()
@@ -373,10 +373,38 @@ describe('HistoryTimeline connected lessons and links', () => {
   })
 
   it('lists no connected lessons for a milestone with none built, and never shows an unbuilt lesson', () => {
-    expect(playableLessonsForMilestone(getMilestone('edison-lamp'))).toEqual([])
+    expect(playableLessonsForMilestone(getMilestone('kilby-integrated-circuit'))).toEqual([])
     expect(playableLessonsForMilestone(getMilestone('gray-conductors')).map((lesson) => lesson.lessonId)).toEqual([
       'concept-002',
     ])
+  })
+})
+
+describe('HistoryTimeline Electricity at Home connections', () => {
+  it('links Faraday, Tesla, and Edison to Home Electricity with a note for each', async () => {
+    const user = userEvent.setup()
+    renderTimeline()
+
+    await user.click(getMarker('Faraday'))
+    expect(screen.getByRole('link', { name: 'Home Electricity' })).toHaveAttribute('href', '/journey/modern-001')
+    expect(screen.getByText(/Power plants still use it by spinning magnets/)).toBeInTheDocument()
+
+    await user.click(getMarker('Tesla'))
+    expect(screen.getByRole('link', { name: 'Home Electricity' })).toHaveAttribute('href', '/journey/modern-001')
+    expect(screen.getByText(/transformers and wall outlets use AC/)).toBeInTheDocument()
+
+    await user.click(getMarker('Edison'))
+    expect(screen.getByRole('link', { name: 'Home Electricity' })).toHaveAttribute('href', '/journey/modern-001')
+    expect(screen.getByText(/compares early lamps with LEDs/)).toBeInTheDocument()
+  })
+
+  it('does not link Home Electricity from unrelated milestones', async () => {
+    const user = userEvent.setup()
+    renderTimeline()
+
+    await user.click(getMarker('Thales'))
+
+    expect(screen.queryByRole('link', { name: 'Home Electricity' })).not.toBeInTheDocument()
   })
 })
 

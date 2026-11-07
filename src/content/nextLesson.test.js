@@ -76,6 +76,7 @@ describe('nextPlayableLesson', () => {
 
   it('uses the real playable lessons by default: Electricity Mysteries leads to Electric Charge', () => {
     expect(nextPlayableLesson('history-001')?.id).toBe('concept-001')
-    expect(nextPlayableLesson('concept-002')).toBeNull()
+    expect(nextPlayableLesson('concept-002')?.id).toBe('modern-001')
+    expect(nextPlayableLesson('modern-001')).toBeNull()
   })
 })

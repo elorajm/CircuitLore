@@ -327,6 +327,12 @@ const timelineMilestones = [
     historianNote:
       'Joseph Henry in the United States also worked on induction at about the same time, and Faraday published first.',
     lessonId: null,
+    relatedLessons: [
+      {
+        lessonId: 'modern-001',
+        note: 'Faraday discovered induction. Power plants still use it by spinning magnets inside coils. Home Electricity shows how that power reaches your house.',
+      },
+    ],
     sources: [
       {
         label:
@@ -356,6 +362,12 @@ const timelineMilestones = [
     historianNote:
       'Edison is often credited with the light bulb, but many people contributed. His team\'s long-lasting lamp and complete lighting system made electric light practical.',
     lessonId: null,
+    relatedLessons: [
+      {
+        lessonId: 'modern-001',
+        note: 'Edison’s lamp and lighting system helped bring electric light into homes and businesses. Home Electricity compares early lamps with LEDs.',
+      },
+    ],
     sources: [
       { label: 'US Patent No. 223,898, Thomas A. Edison, "Electric lamp" (granted January 27, 1880)', url: 'https://patents.google.com/patent/US223898A/en' },
       {
@@ -384,6 +396,12 @@ const timelineMilestones = [
     historianNote:
       'Tesla did not invent the electric motor. His patents advanced AC motor technology. Galileo Ferraris in Italy published related work on rotating magnetic fields in 1888, and many engineers and companies, including George Westinghouse, built AC power systems.',
     lessonId: null,
+    relatedLessons: [
+      {
+        lessonId: 'modern-001',
+        note: 'Tesla’s AC motor, licensed through Westinghouse, was one part of the AC systems that made long-distance power practical. Home Electricity shows how transformers and wall outlets use AC.',
+      },
+    ],
     sources: [
       {
         label: 'US Patent 381,968, Nikola Tesla, "Electro-magnetic motor," patented May 1, 1888 (Google Patents)',
