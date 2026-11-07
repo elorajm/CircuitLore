@@ -58,7 +58,7 @@ function lockedChapter(title) {
   return screen.getByRole('region', { name: title })
 }
 
-const LOCKED_CHAPTERS = ['Chapter 3: Circuits to Build', 'Chapter 4: Electricity at Home']
+const LOCKED_CHAPTERS = ['Chapter 4: Electricity at Home']
 
 describe('LearningJourney lesson status', () => {
   beforeEach(() => {
@@ -125,8 +125,8 @@ describe('LearningJourney lesson status', () => {
     useAuthMock.mockReturnValue(signedOut)
     renderJourney()
 
-    expect(await screen.findAllByRole('link', { name: 'Start Lesson' })).toHaveLength(2)
-    expect(screen.getAllByText('Log in to save your progress as you go.')).toHaveLength(2)
+    expect(await screen.findAllByRole('link', { name: 'Start Lesson' })).toHaveLength(3)
+    expect(screen.getAllByText('Log in to save your progress as you go.')).toHaveLength(3)
     expect(getLessonProgressMock).not.toHaveBeenCalled()
     expect(screen.queryByText('Completed')).not.toBeInTheDocument()
     expect(screen.queryByText('Not started')).not.toBeInTheDocument()
@@ -148,7 +148,7 @@ describe('LearningJourney lesson status', () => {
     renderJourney()
 
     const statuses = screen.getAllByRole('status')
-    expect(statuses).toHaveLength(2)
+    expect(statuses).toHaveLength(3)
     statuses.forEach((status) => expect(status).toHaveTextContent('Checking your progress...'))
     expect(screen.queryByRole('link', { name: /Start|Continue|Review/ })).not.toBeInTheDocument()
     expect(screen.queryByText('Completed')).not.toBeInTheDocument()
@@ -168,7 +168,7 @@ describe('LearningJourney adventure map', () => {
     expect(screen.getByRole('heading', { level: 1, name: 'Your Electricity Adventure' })).toBeInTheDocument()
     expect(screen.getByText(/first electrical clues/)).toBeInTheDocument()
     expect(screen.getByText(/electrical technology that powers homes today/)).toBeInTheDocument()
-    expect(await screen.findAllByRole('link', { name: 'Start Lesson' })).toHaveLength(2)
+    expect(await screen.findAllByRole('link', { name: 'Start Lesson' })).toHaveLength(3)
   })
 
   it('lists four chapters in order on a single learning path', async () => {
@@ -214,14 +214,27 @@ describe('LearningJourney adventure map', () => {
       'href',
       '/journey/concept-001',
     )
-    expect(screen.getByText('Up next')).toBeInTheDocument()
+    expect(screen.getAllByText('Up next')).toHaveLength(2)
   })
 
-  it('shows the two upcoming chapters as locked Coming Soon previews', async () => {
+  it('shows Chapter 3 as a playable Electric Current lesson with its activity and quiz', async () => {
+    renderJourney()
+
+    const card = screen.getByRole('article', { name: 'Electric Current' })
+    expect(within(card).getByRole('heading', { level: 3, name: 'Electric Current' })).toBeInTheDocument()
+    expect(within(card).getByText('Activity: Build the Loop')).toBeInTheDocument()
+    expect(within(card).getByText('Quiz: Knowledge Check')).toBeInTheDocument()
+    expect(await within(card).findByRole('link', { name: 'Start Lesson' })).toHaveAttribute(
+      'href',
+      '/journey/concept-002',
+    )
+  })
+
+  it('shows the upcoming chapter as a locked Coming Soon preview', async () => {
     renderJourney()
     await screen.findAllByRole('link', { name: 'Start Lesson' })
 
-    expect(screen.getAllByText('Coming Soon')).toHaveLength(2)
+    expect(screen.getAllByText('Coming Soon')).toHaveLength(1)
     LOCKED_CHAPTERS.forEach((title) => {
       const section = lockedChapter(title)
       expect(within(section).getByText('Coming Soon')).toBeInTheDocument()
@@ -241,7 +254,7 @@ describe('LearningJourney adventure map', () => {
     expect(screen.queryByText(/unlock/i)).not.toBeInTheDocument()
   })
 
-  it('links only the two playable chapters to their lesson routes', async () => {
+  it('links only the three playable chapters to their lesson routes', async () => {
     renderJourney()
     await screen.findAllByRole('link', { name: 'Start Lesson' })
 
@@ -249,6 +262,7 @@ describe('LearningJourney adventure map', () => {
     expect(links.map((link) => link.getAttribute('href'))).toEqual([
       '/journey/history-001',
       '/journey/concept-001',
+      '/journey/concept-002',
     ])
   })
 

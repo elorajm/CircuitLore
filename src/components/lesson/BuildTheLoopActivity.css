@@ -1,0 +1,84 @@
+.loop-board {
+  position: relative;
+  height: 200px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(180deg, var(--cream-200), var(--cream-100));
+  border: 1px solid var(--cream-200);
+  overflow: hidden;
+}
+
+.loop-wire {
+  position: absolute;
+  left: 16%;
+  right: 19%;
+  height: 0.5rem;
+  border-radius: 999px;
+  transition: background var(--transition-medium);
+}
+
+.loop-wire-top {
+  top: 24%;
+}
+
+.loop-wire-bottom {
+  top: 70%;
+}
+
+.loop-wire.is-unset {
+  background: var(--cream-100);
+  border: 1px dotted var(--navy-700);
+}
+
+.loop-wire.is-copper {
+  background: linear-gradient(90deg, var(--gold-400), var(--gold-700));
+}
+
+.loop-wire.is-plastic {
+  background: repeating-linear-gradient(45deg, var(--navy-700) 0 6px, var(--cream-100) 6px 12px);
+}
+
+.loop-wire.is-open {
+  background: transparent;
+  border: 2px dashed var(--navy-700);
+}
+
+.loop-battery,
+.loop-bulb {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.loop-battery {
+  left: 4%;
+  top: 30%;
+  width: 12%;
+  height: 40%;
+  border-radius: var(--radius-sm);
+  background: var(--navy-900);
+  color: var(--cream-100);
+}
+
+.loop-bulb {
+  right: 4%;
+  top: 26%;
+  width: 15%;
+  height: 48%;
+  border-radius: 50%;
+  border: 2px solid var(--navy-700);
+  background: var(--cream-100);
+  color: var(--navy-900);
+  transition:
+    background var(--transition-medium),
+    box-shadow var(--transition-medium);
+}
+
+.loop-bulb.is-lit {
+  background: radial-gradient(circle, #fff6c2, var(--gold-400));
+  box-shadow: 0 0 18px 4px rgba(245, 197, 66, 0.6);
+}

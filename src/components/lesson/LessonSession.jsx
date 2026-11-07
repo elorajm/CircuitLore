@@ -4,6 +4,7 @@ import { ScrollIcon } from '../icons.jsx'
 import StoryBlock from './StoryBlock.jsx'
 import RubAttractActivity from './RubAttractActivity.jsx'
 import StaticOrCurrentActivity from './StaticOrCurrentActivity.jsx'
+import BuildTheLoopActivity from './BuildTheLoopActivity.jsx'
 import KnowledgeCheck from './KnowledgeCheck.jsx'
 import LessonComplete from './LessonComplete.jsx'
 import './Lesson.css'
@@ -12,6 +13,7 @@ import './Lesson.css'
 const ACTIVITIES = {
   'rub-and-attract': RubAttractActivity,
   'static-or-current': StaticOrCurrentActivity,
+  'build-the-loop': BuildTheLoopActivity,
 }
 
 function readMetadata(record) {

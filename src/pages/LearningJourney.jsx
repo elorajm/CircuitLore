@@ -36,13 +36,20 @@ const CHAPTERS = [
       'Discover the tiny charged pieces inside everything, and why charge that stays still is different from charge that flows.',
     parts: ['Story: charge and its two kinds of motion', 'Activity: Static or Current?', 'Quiz: Knowledge Check'],
   },
+  {
+    number: 3,
+    lessonId: 'concept-002',
+    title: 'Circuits to Build',
+    intro:
+      'Build your first complete circuit, then break it to find out why current needs a loop.',
+    lessonTitle: 'Electric Current',
+    description:
+      'Learn what current is, and what a power source, a conductor, and a load do in a circuit.',
+    parts: ['Story: current and the complete path', 'Activity: Build the Loop', 'Quiz: Knowledge Check'],
+  },
 ]
 
 const UPCOMING_CHAPTERS = [
-  {
-    title: 'Circuits to Build',
-    teaser: 'Connect parts in one path or in several paths and compare what happens.',
-  },
   {
     title: 'Electricity at Home',
     teaser: 'Discover how the power in your home reaches the outlets you use.',

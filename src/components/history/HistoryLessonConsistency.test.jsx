@@ -46,8 +46,8 @@ function journeyCard() {
   return screen.getByRole('article', { name: 'Electricity Mysteries' })
 }
 
-// History, plus one checking or error message per journey lesson card
-const STATUS_REGIONS_WHILE_CHECKING = 3
+// History, plus one checking or error message per journey lesson card (three cards)
+const STATUS_REGIONS_WHILE_CHECKING = 4
 
 const ERROR_HINT = /We could not check your saved progress/
 

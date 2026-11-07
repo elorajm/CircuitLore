@@ -598,3 +598,120 @@ describe('Electric Charge lesson (concept-001) progress', () => {
     confirmSpy.mockRestore()
   })
 })
+
+describe('Electric Current lesson (concept-002) progress', () => {
+  const CURRENT_ID = 'concept-002'
+
+  function currentRecord(status, metadata, extra = {}) {
+    return { lesson_id: CURRENT_ID, status, attempts_count: 1, completed_at: null, metadata, ...extra }
+  }
+
+  function gapGroup(name) {
+    return screen.getByRole('group', { name })
+  }
+
+  beforeEach(() => {
+    resetProgressMock.mockReset()
+    saveProgressMock.mockReset()
+    getLessonProgressMock.mockReset()
+  })
+
+  it('starts at Step 1 and saves progress under concept-002 when Begin is clicked', async () => {
+    const user = userEvent.setup()
+    getLessonProgressMock.mockResolvedValue(null)
+    saveProgressMock.mockResolvedValue(currentRecord('in_progress', { step: 1, quizScore: null, activityDone: false }))
+    renderLesson('/journey/concept-002')
+
+    await user.click(await screen.findByRole('button', { name: 'Begin' }))
+
+    expect(getLessonProgressMock).toHaveBeenCalledWith(CURRENT_ID)
+    expect(saveProgressMock).toHaveBeenCalledWith(CURRENT_ID, 'in_progress', {
+      step: 1,
+      quizScore: null,
+      activityDone: false,
+    })
+    expect(await screen.findByText('Step 2 of 6: Parts')).toBeInTheDocument()
+  })
+
+  it('restores the saved step for a student returning to Electric Current', async () => {
+    getLessonProgressMock.mockResolvedValue(
+      currentRecord('in_progress', { step: 2, quizScore: null, activityDone: false }),
+    )
+    renderLesson('/journey/concept-002')
+
+    expect(await screen.findByText('Step 3 of 6: Complete path')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: 'Electric Current' })).toBeInTheDocument()
+  })
+
+  it('saves activityDone only after the bulb is lit and then broken, then allows Next', async () => {
+    const user = userEvent.setup()
+    getLessonProgressMock.mockResolvedValue(
+      currentRecord('in_progress', { step: 3, quizScore: null, activityDone: false }),
+    )
+    saveProgressMock.mockResolvedValue(currentRecord('in_progress', { step: 4, quizScore: null, activityDone: true }))
+    renderLesson('/journey/concept-002')
+
+    expect(await screen.findByRole('heading', { level: 2, name: 'Build the Loop' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Next' })).toBeDisabled()
+
+    await user.click(within(gapGroup('Top wire')).getByRole('radio', { name: 'Copper wire' }))
+    await user.click(within(gapGroup('Bottom wire')).getByRole('radio', { name: 'Copper wire' }))
+    expect(screen.getByRole('button', { name: 'Next' })).toBeDisabled()
+
+    await user.click(within(gapGroup('Bottom wire')).getByRole('radio', { name: 'Leave a gap' }))
+    await user.click(screen.getByRole('button', { name: 'Next' }))
+
+    expect(saveProgressMock).toHaveBeenCalledWith(CURRENT_ID, 'in_progress', {
+      step: 4,
+      quizScore: null,
+      activityDone: true,
+    })
+    expect(await screen.findByText('Step 5 of 6: Today')).toBeInTheDocument()
+  })
+
+  it('marks the lesson completed with the quiz score only on Finish Lesson', async () => {
+    const user = userEvent.setup()
+    getLessonProgressMock.mockResolvedValue(
+      currentRecord('in_progress', { step: 5, quizScore: null, activityDone: true }),
+    )
+    saveProgressMock
+      .mockResolvedValueOnce(currentRecord('in_progress', { step: 5, quizScore: 3, activityDone: true }))
+      .mockResolvedValueOnce(currentRecord('completed', { step: 5, quizScore: 3, activityDone: true }))
+    renderLesson('/journey/concept-002')
+
+    await user.click(await screen.findByRole('radio', { name: 'The flow of electric charge through a complete path' }))
+    await user.click(
+      screen.getByRole('radio', {
+        name: 'Plastic is an insulator, so it blocks the flow of charge and the loop is broken',
+      }),
+    )
+    await user.click(screen.getByRole('radio', { name: 'The light bulb (electrical load)' }))
+    await user.click(screen.getByRole('button', { name: 'Check answers' }))
+    await user.click(await screen.findByRole('button', { name: 'Finish Lesson' }))
+
+    expect(saveProgressMock).toHaveBeenNthCalledWith(2, CURRENT_ID, 'completed', {
+      step: 5,
+      quizScore: 3,
+      activityDone: true,
+    })
+    expect(await screen.findByRole('heading', { level: 2, name: 'Congratulations!' })).toBeInTheDocument()
+    expect(screen.getByText('You completed Electric Current!')).toBeInTheDocument()
+    expect(screen.getByText('3 out of 3 correct')).toBeInTheDocument()
+  })
+
+  it('resets Electric Current using its own lesson id', async () => {
+    const user = userEvent.setup()
+    const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true)
+    getLessonProgressMock
+      .mockResolvedValueOnce(currentRecord('completed', { step: 5, quizScore: 3, activityDone: true }))
+      .mockResolvedValue(currentRecord('not_started', {}))
+    resetProgressMock.mockResolvedValue({ success: true })
+    renderLesson('/journey/concept-002')
+
+    await user.click(await screen.findByRole('button', { name: 'Reset Lesson Progress' }))
+
+    expect(resetProgressMock).toHaveBeenCalledWith(CURRENT_ID)
+    expect(await screen.findByRole('button', { name: 'Begin' })).toBeInTheDocument()
+    confirmSpy.mockRestore()
+  })
+})

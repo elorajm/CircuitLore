@@ -87,6 +87,21 @@ describe('Your Next Adventure card', () => {
     expect(within(card).getByText(/try the Static or Current\? activity/)).toBeInTheDocument()
   })
 
+  it('recommends Electric Current once Electric Charge is completed', async () => {
+    getProgressMock.mockResolvedValue([
+      record('history-001', 'completed'),
+      record('concept-001', 'completed'),
+    ])
+    renderDashboard()
+
+    const card = await screen.findByRole('article', { name: 'Electric Current' })
+    expect(await within(card).findByRole('link', { name: 'Start Lesson' })).toHaveAttribute(
+      'href',
+      '/journey/concept-002',
+    )
+    expect(within(card).getByText(/try the Build the Loop activity/)).toBeInTheDocument()
+  })
+
   it('resumes Electric Charge when the student saved it as in progress', async () => {
     getProgressMock.mockResolvedValue([
       record('history-001', 'completed'),
@@ -154,7 +169,7 @@ describe('Progress overview', () => {
     renderDashboard()
 
     const playable = await screen.findByText('Playable lessons')
-    expect(playable.nextElementSibling).toHaveTextContent('2')
+    expect(playable.nextElementSibling).toHaveTextContent('3')
     expect(screen.getByText('Lessons completed').nextElementSibling).toHaveTextContent('1')
     expect(screen.queryByText(/Only one lesson is playable/)).not.toBeInTheDocument()
   })
