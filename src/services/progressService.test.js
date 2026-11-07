@@ -665,6 +665,28 @@ describe('progressService', () => {
       ])
     })
 
+    it('only touches the lesson_progress table and never calls account APIs', async () => {
+      queueQueries({ data: null, error: null })
+
+      await progressService.resetProgress(LESSON_ID)
+
+      expect(supabaseClient.supabase.from).toHaveBeenCalledTimes(1)
+      expect(supabaseClient.supabase.from).toHaveBeenCalledWith('lesson_progress')
+      expect(supabaseClient.supabase.auth.getSession).toHaveBeenCalledTimes(1)
+    })
+
+    it('succeeds without creating a row when the student has no progress for the lesson', async () => {
+      // The UPDATE matches zero rows and PostgREST returns no error, so the call succeeds.
+      // It must not fall back to an insert, which would create progress the student never started.
+      const queries = queueQueries({ data: null, error: null })
+
+      const result = await progressService.resetProgress(LESSON_ID)
+
+      expect(result.success).toBe(true)
+      expect(queries).toHaveLength(1)
+      expect(callsOf(queries[0], 'insert')).toHaveLength(0)
+    })
+
     it('should throw error if lessonId is empty', async () => {
       await expect(progressService.resetProgress('')).rejects.toThrow('lessonId must be a non-empty string')
     })
